@@ -6,6 +6,8 @@ info:
 servers:
   - url: https://ztouch-api.btc.bw:2896
     description: Production
+  - url: https://ztouch-proxy.btc.bw
+    description: Public proxy (customer SMS web)
   - url: http://localhost:8000
     description: Local
 security:
@@ -589,8 +591,43 @@ paths:
           in: query
           required: true
           schema: { type: string }
+        - name: fbid
+          in: query
+          required: false
+          schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/AppointmentTokenResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/servicequality/cases/appointments/availability/:
+    get:
+      summary: Get availability slots for a token
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+        - name: date
+          in: query
+          required: false
+          schema: { type: string, format: date }
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentAvailabilityResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/servicequality/cases/appointments/location/:
+    patch:
+      summary: Update appointment location (token)
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AppointmentLocationRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentLocationResponse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
   /v2/servicequality/cases/appointments/schedule/:
     post:
@@ -1314,6 +1351,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/AppointmentTokenResponse' }
+    AppointmentAvailabilityResponse:
+      description: Appointment availability response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentAvailabilityResponse' }
+    AppointmentLocationResponse:
+      description: Appointment location response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentLocationResponse' }
     AppointmentTechResponse:
       description: Technician appointment response
       content:
@@ -1508,12 +1555,12 @@ components:
     ScheduleAppointmentRequest:
       type: object
       properties:
-        date: { type: string }
-        time: { type: string }
+        date: { type: string, description: "DD-MM-YYYY" }
+        time: { type: string, description: "HH:MM:SS" }
         latitude: { type: number }
         longitude: { type: number }
         estimated_duration_minutes: { type: integer }
-      required: [date, time]
+      required: [date, time, latitude, longitude]
     RescheduleAppointmentRequest:
       allOf:
         - $ref: '#/components/schemas/ScheduleAppointmentRequest'
@@ -1561,9 +1608,34 @@ components:
       type: object
       properties:
         task_number: { type: string }
-    FeedbackRequest:
+    AppointmentLocationRequest:
       type: object
-      additionalProperties: true
+      properties:
+        latitude: { type: number }
+        longitude: { type: number }
+        address_label: { type: string }
+      required: [latitude, longitude]
+    TechnicianFeedbackRequest:
+      type: object
+      properties:
+        customer_satisfaction: { type: integer, minimum: 1, maximum: 5 }
+        customer_effort_score: { type: integer, minimum: 1, maximum: 7 }
+        contractor_identified: { type: string, enum: [Yes, No] }
+        branded_clothing: { type: string, enum: [Yes, No] }
+        speedtest_conducted: { type: string, enum: [Yes, No] }
+        extended: { type: string }
+      required: [customer_satisfaction, customer_effort_score]
+    ServiceFeedbackRequest:
+      type: object
+      properties:
+        net_promoter_score: { type: integer, minimum: 1, maximum: 10 }
+        service_rating: { type: integer, minimum: 1, maximum: 5 }
+        service_feedback: { type: string }
+      required: [net_promoter_score, service_rating]
+    FeedbackRequest:
+      oneOf:
+        - $ref: '#/components/schemas/TechnicianFeedbackRequest'
+        - $ref: '#/components/schemas/ServiceFeedbackRequest'
     IncidentRequest:
       type: object
       additionalProperties: true
@@ -1879,7 +1951,53 @@ components:
         total_pages: { type: integer }
     AppointmentTokenResponse:
       type: object
-      additionalProperties: true
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        token_valid: { type: boolean }
+        expires_at: { type: string }
+        token: { type: string }
+        case_number: { type: string }
+        task_number: { type: string }
+        reference_code: { type: string }
+        technician:
+          type: object
+          properties:
+            id: { type: integer }
+            username: { type: string }
+            display_name: { type: string }
+        service_type: { type: string, enum: [internet, voice, other] }
+        appointment_state:
+          type: object
+          properties:
+            scheduled_date: { type: string }
+            scheduled_time: { type: string }
+            estimated_duration_minutes: { type: integer }
+            confirmed: { type: boolean }
+            status: { type: string }
+        allow_reschedule: { type: boolean }
+        allow_location_update: { type: boolean }
+        reschedule: { type: boolean }
+        submitted: { type: boolean }
+        redirect: { type: boolean }
+        redirect_to: { type: string }
+        existing_appointment:
+          type: object
+          properties:
+            task_number: { type: string }
+            scheduled_date: { type: string }
+            scheduled_time: { type: string }
+            status: { type: string }
+            estimated_duration_minutes: { type: integer }
+        appointments:
+          type: array
+          items:
+            type: object
+            properties:
+              date: { type: string }
+              time: { type: string }
+              estimated_duration_minutes: { type: integer }
+        error: { type: string }
     AppointmentTechResponse:
       type: object
       additionalProperties: true
@@ -1892,6 +2010,27 @@ components:
         success: { type: boolean }
         message: { type: string }
         appointment_confirmed: { type: boolean }
+    AppointmentAvailabilityResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        date: { type: string }
+        timezone: { type: string }
+        slots:
+          type: array
+          items:
+            type: object
+            properties:
+              start_time: { type: string }
+              end_time: { type: string }
+              is_available: { type: boolean }
+    AppointmentLocationResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
     AppointmentsList:
       type: object
       properties:

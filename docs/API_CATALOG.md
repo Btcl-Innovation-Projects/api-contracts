@@ -2,6 +2,7 @@
 
 Base URL: `https://ztouch-api.btc.bw:2896`
 Auth: Bearer JWT unless noted.
+Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2` prefix).
 
 ## Accounts (`/v2/accounts`)
 - POST `/login` - user login (no auth)
@@ -56,8 +57,10 @@ Auth: Bearer JWT unless noted.
 ## Service Quality (`/v2/servicequality`)
 - POST `/cases/appointments/sendlink/` - send appointment link
 - GET `/cases/appointments/validate-token/` - validate appointment token (no auth)
+- GET `/cases/appointments/availability/` - availability slots for a token (no auth)
 - POST `/cases/appointments/schedule/` - customer schedules appointment (token)
 - POST `/cases/appointments/reschedule/` - customer reschedules appointment (token)
+- PATCH `/cases/appointments/location/` - update appointment location (token)
 - POST `/cases/appointments/technician/schedule/` - technician schedules
 - POST `/cases/appointments/technician/reschedule/` - technician reschedules
 - POST `/cases/appointments/technician/depart/` - technician departs
@@ -119,3 +122,88 @@ Auth: Bearer JWT unless noted.
 - `pending_confirmation`: appointment exists with `appointment_confirmed=false` and `scheduled_date=filter date`
 - `date_not_confirmed`: appointment exists with `appointment_confirmed=false` (any date)
 - `no_date`: open tasks with no appointment record
+
+## Public Proxy (Customer SMS Flow)
+- SMS links point to `https://ztouch-proxy.btc.bw/service/appointments/...`
+- API calls from the web flow target the `/v2/servicequality/cases/appointments/*` endpoints above.
+
+## Availability Rules
+- Working window: 08:00–17:00 (local server time)
+- Slot step: 30 minutes
+- Slot duration: per task estimate (default 30 minutes)
+- Lead time: 60 minutes (same-day)
+- Max days ahead: 30
+- Service type detection (token context): from `Case.service_type` if present; falls back to task description keywords (`voice`, `internet/data`), else `other`.
+
+## Error Cases
+- Token expired: 401 with message `Token expired. Renew token.`
+- Invalid token: 400 with message `Invalid token.`
+- Already submitted: 409 with `Feedback has already been submitted` or `Service feedback has already been submitted`
+- Slot unavailable: 409 with `Appointment clashes with a confirmed booking for this technician.`
+
+## Token Context Example
+Request:
+`GET /v2/servicequality/cases/appointments/validate-token/?token=abc123`
+
+Response:
+```json
+{
+  "success": true,
+  "message": "Token is valid",
+  "token_valid": true,
+  "expires_at": "2026-01-30T09:00:00Z",
+  "case_number": "1805745",
+  "task_number": "3039479",
+  "reference_code": "3039479",
+  "technician": { "id": 12, "username": "matihan", "display_name": "Matihan K" },
+  "service_type": "internet",
+  "appointment_state": {
+    "scheduled_date": null,
+    "scheduled_time": null,
+    "estimated_duration_minutes": 30,
+    "confirmed": false,
+    "status": "None"
+  },
+  "allow_reschedule": true,
+  "allow_location_update": false
+}
+```
+
+## Feedback Payloads
+Technician feedback (token only):
+```json
+{
+  "customer_satisfaction": 4,
+  "customer_effort_score": 5,
+  "contractor_identified": "Yes",
+  "branded_clothing": "Yes",
+  "speedtest_conducted": "No",
+  "extended": "Resolved quickly"
+}
+```
+
+Service feedback (token + fbid):
+```json
+{
+  "net_promoter_score": 9,
+  "service_rating": 5,
+  "service_feedback": "Great service"
+}
+```
+
+## Availability Example
+Request:
+`GET /v2/servicequality/cases/appointments/availability/?token=abc123&date=2026-01-30`
+
+Response:
+```json
+{
+  "success": true,
+  "date": "2026-01-30",
+  "timezone": "Africa/Gaborone",
+  "slots": [
+    { "start_time": "09:00:00", "end_time": "09:30:00", "is_available": true },
+    { "start_time": "09:30:00", "end_time": "10:00:00", "is_available": false }
+  ]
+}
+```
