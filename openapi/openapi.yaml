@@ -1,0 +1,1551 @@
+openapi: 3.0.3
+info:
+  title: ZTouch API Contracts
+  version: 1.0.0
+  description: Initial API contract generation from backend routes.
+servers:
+  - url: https://ztouch-api.btc.bw:2896
+    description: Production
+  - url: http://localhost:8000
+    description: Local
+security:
+  - BearerAuth: []
+paths:
+  /admin/:
+    get:
+      summary: Django admin
+      security: []
+      responses:
+        '302': { description: Redirect to login }
+        '200': { description: Admin page }
+  /v2/accounts/login:
+    post:
+      summary: User login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/accounts/logout:
+    post:
+      summary: User logout
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/accounts/create-user/:
+    post:
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/accounts/change-password/:
+    post:
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/accounts/reset-password/:
+    post:
+      summary: Reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResetPasswordRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /v2/accounts/forgot-password/:
+    post:
+      summary: Forgot password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForgotPasswordRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /v2/accounts/expo/update-token/:
+    post:
+      summary: Update Expo token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExpoTokenRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /v2/accounts/groups/{group}:
+    get:
+      summary: List users in a group
+      parameters:
+        - name: group
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/UsersList' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/accounts/companies/:
+    get:
+      summary: List companies
+      responses:
+        '200': { $ref: '#/components/responses/CompaniesList' }
+    post:
+      summary: Create company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompanyCreateRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/CompanyResponse' }
+  /v2/accounts/companies/{company_id}/:
+    patch:
+      summary: Update company
+      parameters:
+        - name: company_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompanyUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/CompanyResponse' }
+    delete:
+      summary: Delete company
+      parameters:
+        - name: company_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/accounts/teamleaders/technicians/:
+    get:
+      summary: List technicians under teamleader
+      parameters:
+        - name: supervisor
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/UsersList' }
+  /v2/accounts/teamleaders/technicians/assign/:
+    post:
+      summary: Assign technician to teamleader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignTechnicianRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/accounts/teamleaders/technicians/unassign/:
+    post:
+      summary: Unassign technician from teamleader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UnassignTechnicianRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/accounts/teamleaders/reports/technicians/:
+    get:
+      summary: Technician performance report
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/ReportResponse' }
+
+  /v2/cone/cases/info/:
+    get:
+      summary: Get case info from C1
+      parameters:
+        - name: case_number
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/CaseInfoResponse' }
+  /v2/cone/cases/orders/{pk}/close/:
+    post:
+      summary: Close service order
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/cases/tasks/{pk}/complete/:
+    post:
+      summary: Complete task
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteTaskRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /v2/cone/cases/tasks/{pk}/v2/complete/:
+    post:
+      summary: Complete task v2
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteTaskRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/cases/tasks/{pk}/v3/complete/:
+    post:
+      summary: Complete task v3 (requires appointment)
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteTaskRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /v2/cone/cases/tasks/{pk}/signoff/:
+    post:
+      summary: Signoff task
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/cases/:
+    get:
+      summary: Get cases
+      responses:
+        '200': { $ref: '#/components/responses/CasesResponse' }
+  /v2/cone/cases/tasks/:
+    get:
+      summary: Get user task cases (Redis)
+      parameters:
+        - name: filter
+          in: query
+          schema: { type: string }
+        - name: username
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/CasesResponse' }
+  /v2/cone/cases/assign/:
+    post:
+      summary: Assign cases to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignCasesRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/AssignCasesResponse' }
+  /v2/cone/cases/{case_number}/update/:
+    patch:
+      summary: Update case info
+      parameters:
+        - name: case_number
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaseUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/CaseResponse' }
+  /v2/cone/cases/upload/:
+    post:
+      summary: Upload locality cases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UploadCasesRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadCasesResponse' }
+  /v2/cone/offers/{pk}/get:
+    get:
+      summary: Get offer info
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/OfferResponse' }
+  /v2/cone/cases/customer/name/:
+    get:
+      summary: Get customer name
+      responses:
+        '200': { $ref: '#/components/responses/CustomerNameResponse' }
+  /v2/cone/cases/token/:
+    get:
+      summary: Get access token
+      security: []
+      responses:
+        '200': { $ref: '#/components/responses/TokenResponse' }
+  /v2/cone/cases/tasks/{pk}/assign/:
+    patch:
+      summary: Assign task to user
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignTaskRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /v2/cone/cases/tasks/completed/:
+    get:
+      summary: Get completed tasks
+      responses:
+        '200': { $ref: '#/components/responses/TasksResponse' }
+  /v2/cone/cases/tasks/refresh/:
+    post:
+      summary: Refresh user task cases
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/buckets/:
+    get:
+      summary: List buckets for user
+      responses:
+        '200': { $ref: '#/components/responses/BucketsResponse' }
+    post:
+      summary: Create bucket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BucketCreateRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/BucketResponse' }
+  /v2/cone/buckets/refresh/:
+    post:
+      summary: Refresh bucket task cases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BucketRefreshRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+  /v2/cone/buckets/{name}/:
+    patch:
+      summary: Update bucket
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BucketUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/BucketResponse' }
+  /v2/cone/buckets/{name}/delete/:
+    delete:
+      summary: Delete bucket
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/cases/assign-by-supervisor/:
+    post:
+      summary: Assign cases by supervisor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignCasesBySupervisorRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/AssignCasesResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/cone/crm/groups/users/:
+    get:
+      summary: Get CRM users in group
+      parameters:
+        - name: referenceCode
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/UsersList' }
+  /v2/cone/report/task-report/:
+    get:
+      summary: Monthly task report
+      responses:
+        '200': { $ref: '#/components/responses/ReportResponse' }
+  /v2/cone/cases/assign-one/:
+    post:
+      summary: Assign case to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignOneCaseRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+
+  /v2/servicequality/cases/appointments/sendlink/:
+    post:
+      summary: Send appointment link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendAppointmentLinkRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/servicequality/cases/appointments/validate-token/:
+    get:
+      summary: Validate appointment token
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentTokenResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/servicequality/cases/appointments/schedule/:
+    post:
+      summary: Schedule appointment (customer)
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScheduleAppointmentRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessMessage' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /v2/servicequality/cases/appointments/technician/schedule/:
+    post:
+      summary: Schedule appointment by technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TechnicianScheduleRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/AppointmentTechResponse' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /v2/servicequality/cases/appointments/technician/reschedule/:
+    post:
+      summary: Reschedule appointment by technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TechnicianScheduleRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/AppointmentTechResponse' }
+  /v2/servicequality/cases/appointments/technician/depart/:
+    post:
+      summary: Mark appointment departed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TechnicianDepartArriveRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentTimeResponse' }
+  /v2/servicequality/cases/appointments/technician/arrive/:
+    post:
+      summary: Mark appointment arrived
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TechnicianDepartArriveRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentTimeResponse' }
+  /v2/servicequality/cases/appointments/technician/confirm/:
+    post:
+      summary: Confirm appointment by technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmAppointmentRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/ConfirmAppointmentResponse' }
+  /v2/servicequality/cases/appointments/technician/cancel/:
+    post:
+      summary: Cancel appointment by technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CancelAppointmentRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/servicequality/cases/appointments/reschedule/:
+    post:
+      summary: Reschedule appointment (customer)
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RescheduleAppointmentRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /v2/servicequality/cases/appointments/task/complete/:
+    post:
+      summary: Complete task (appointment flow)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteAppointmentTaskRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/servicequality/cases/appointments/status/:
+    post:
+      summary: Set appointment ongoing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AppointmentStatusRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/servicequality/cases/appointments/feedback/submit/:
+    post:
+      summary: Submit feedback
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+        - name: fbid
+          in: query
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedbackRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessMessage' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /v2/servicequality/cases/appointments/:
+    get:
+      summary: Get appointments with feedbacks
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentsList' }
+  /v2/servicequality/cases/ratings/:
+    get:
+      summary: Get ratings
+      responses:
+        '200': { $ref: '#/components/responses/RatingsList' }
+
+  /v2/networkaudit/copper-theft/reports/:
+    get:
+      summary: Get copper theft reports
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/networkaudit/copper-theft/incidents/:
+    get:
+      summary: List incidents
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+    post:
+      summary: Create incident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IncidentRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/GenericItem' }
+  /v2/networkaudit/copper-theft/incidents/{pk}/:
+    get:
+      summary: Get incident
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    patch:
+      summary: Update incident
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IncidentRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    delete:
+      summary: Delete incident
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+  /v2/networkaudit/copper-theft/incident/{incident_id}/affected-customers/:
+    get:
+      summary: List affected customers
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+    post:
+      summary: Create affected customer
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AffectedCustomerRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/GenericItem' }
+  /v2/networkaudit/copper-theft/affected-customers/{pk}/:
+    get:
+      summary: Get affected customer
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    patch:
+      summary: Update affected customer
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AffectedCustomerRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    delete:
+      summary: Delete affected customer
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+  /v2/networkaudit/copper-theft/affected-customers/delete-all/{incident_id}/:
+    delete:
+      summary: Delete all affected customers
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/networkaudit/copper-theft/incident/{incident_id}/comments/:
+    get:
+      summary: List comments
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+    post:
+      summary: Create comment
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommentRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/GenericItem' }
+  /v2/networkaudit/copper-theft/comments/{pk}/:
+    get:
+      summary: Get comment
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    patch:
+      summary: Update comment
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommentRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    delete:
+      summary: Delete comment
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+  /v2/networkaudit/copper-theft/{content_type}/{object_id}/comments/:
+    get:
+      summary: List comments by model
+      parameters:
+        - name: content_type
+          in: path
+          required: true
+          schema: { type: string }
+        - name: object_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/networkaudit/copper-theft/prices/:
+    get:
+      summary: List prices
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/networkaudit/copper-theft/prices/{pk}/:
+    get:
+      summary: Get price
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+    patch:
+      summary: Update price
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PriceRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+  /v2/networkaudit/subscriber/upload/:
+    post:
+      summary: Upload customer with subscriber
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SubscriberUploadRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/networkaudit/localities/:
+    get:
+      summary: Get localities
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/networkaudit/regions-with-locations/:
+    get:
+      summary: Regions with locations
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/networkaudit/locations/report-technician-location/:
+    post:
+      summary: Report technician location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TechnicianLocationRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/networkaudit/locations/technician-locations/latest/:
+    get:
+      summary: Get latest technician locations
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+
+  /v2/star/olt/ont/link:
+    get:
+      summary: Check ONT link to OLT
+      parameters:
+        - name: ont
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+  /v2/star/service/provisioning:
+    post:
+      summary: Provision service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProvisioningRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/service/provisioning/change-cpe/:
+    post:
+      summary: Change customer CPE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangeCpeRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/service/provisioning_v2:
+    post:
+      summary: Provision service v2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProvisioningRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/provision/{service_id}:
+    post:
+      summary: Provision service by id
+      parameters:
+        - name: service_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProvisioningRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/olt/ont/delete/:
+    post:
+      summary: Delete ONT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OntDeleteRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/olt/ont/unprovisioned/:
+    get:
+      summary: Get unprovisioned ONTs
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/star/olt/vlans/available/{node_name}:
+    get:
+      summary: Get available VLANs
+      parameters:
+        - name: node_name
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/star/olt/vlans/unused/:
+    get:
+      summary: Get unused VLANs
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/star/olt/vlans/unused/delete/:
+    post:
+      summary: Delete unused VLANs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeleteVlansRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/service/provisioning/{metro}/{node}/{type}:
+    post:
+      summary: Provision VLANs on metro/node
+      parameters:
+        - name: metro
+          in: path
+          required: true
+          schema: { type: string }
+        - name: node
+          in: path
+          required: true
+          schema: { type: string }
+        - name: type
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/star/subscribers/search:
+    get:
+      summary: Search nodes and VLANs
+      parameters:
+        - name: query
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericList' }
+  /v2/star/subscribers/lookup:
+    get:
+      summary: Subscriber lookup
+      parameters:
+        - name: subscriber_number
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+  /v2/star/subscribers/health:
+    get:
+      summary: Subscriber health
+      parameters:
+        - name: subscriber_number
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    SuccessMessage:
+      description: Success
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SuccessMessage' }
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    BadGateway:
+      description: Bad gateway
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    UsersList:
+      description: Users list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/UsersList' }
+    CompaniesList:
+      description: Companies list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/CompaniesList' }
+    CompanyResponse:
+      description: Company response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Company' }
+    CasesResponse:
+      description: Cases response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/CasesResponse' }
+    CaseResponse:
+      description: Case response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Case' }
+    CaseInfoResponse:
+      description: Case info response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/CaseInfoResponse' }
+    OfferResponse:
+      description: Offer response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/OfferResponse' }
+    CustomerNameResponse:
+      description: Customer name response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/CustomerNameResponse' }
+    TokenResponse:
+      description: Token response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/TokenResponse' }
+    AssignCasesResponse:
+      description: Assign cases response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AssignCasesResponse' }
+    BucketsResponse:
+      description: Buckets response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/BucketsResponse' }
+    BucketResponse:
+      description: Bucket response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Bucket' }
+    UploadCasesResponse:
+      description: Upload cases response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/UploadCasesResponse' }
+    ReportResponse:
+      description: Report response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ReportResponse' }
+    TasksResponse:
+      description: Tasks response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/TasksResponse' }
+    AppointmentTokenResponse:
+      description: Appointment token response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentTokenResponse' }
+    AppointmentTechResponse:
+      description: Technician appointment response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentTechResponse' }
+    AppointmentTimeResponse:
+      description: Appointment time response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentTimeResponse' }
+    ConfirmAppointmentResponse:
+      description: Confirm appointment response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ConfirmAppointmentResponse' }
+    AppointmentsList:
+      description: Appointments list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentsList' }
+    RatingsList:
+      description: Ratings list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/RatingsList' }
+    GenericList:
+      description: Generic list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/GenericList' }
+    GenericItem:
+      description: Generic item
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/GenericItem' }
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        error: { type: string }
+    SuccessMessage:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+    LoginRequest:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+      required: [username, password]
+    LoginResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        access: { type: string }
+        refresh: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+    CreateUserRequest:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string }
+        group: { type: string }
+        cone_username: { type: string }
+        company_id: { type: integer }
+        bucket_id: { type: string }
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password: { type: string }
+        new_password: { type: string }
+    ResetPasswordRequest:
+      type: object
+      properties:
+        username: { type: string }
+        new_password: { type: string }
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        username: { type: string }
+        email: { type: string }
+    ExpoTokenRequest:
+      type: object
+      properties:
+        expo_token: { type: string }
+      required: [expo_token]
+    CompanyCreateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        is_active: { type: boolean }
+      required: [name]
+    CompanyUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        is_active: { type: boolean }
+    AssignTechnicianRequest:
+      type: object
+      properties:
+        technician: { type: string }
+        supervisor: { type: string }
+        bucket: { type: string }
+    UnassignTechnicianRequest:
+      type: object
+      properties:
+        technician: { type: string }
+    AssignCasesRequest:
+      type: object
+      properties:
+        assigned_to: { type: string }
+        cases: { type: array, items: { type: string } }
+      required: [assigned_to, cases]
+    AssignCasesBySupervisorRequest:
+      type: object
+      properties:
+        assigned_to: { type: string }
+        cases: { type: array, items: { type: string } }
+    AssignOneCaseRequest:
+      type: object
+      properties:
+        assigned_to: { type: string }
+        case_number: { type: string }
+    AssignTaskRequest:
+      type: object
+      properties:
+        assign_to: { type: string }
+        task_instance_id: { type: string }
+        assigned_group_queue_id: { type: string }
+        reference_code: { type: string }
+        case_number: { type: string }
+    CaseUpdateRequest:
+      type: object
+      additionalProperties: true
+    UploadCasesRequest:
+      type: object
+      properties:
+        cases: { type: array, items: { type: string } }
+        locality: { type: string }
+    CompleteTaskRequest:
+      type: object
+      additionalProperties: true
+    BucketCreateRequest:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
+    BucketUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
+    BucketRefreshRequest:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
+    SendAppointmentLinkRequest:
+      type: object
+      properties:
+        reference_code: { type: string }
+        task_instance_id: { type: string }
+        when_created: { type: string }
+        user_updated: { type: string }
+        routing_reference_code: { type: string }
+        contact: { type: string }
+        case: { type: object }
+      required: [reference_code]
+    ScheduleAppointmentRequest:
+      type: object
+      properties:
+        date: { type: string }
+        time: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        estimated_duration_minutes: { type: integer }
+      required: [date, time]
+    RescheduleAppointmentRequest:
+      allOf:
+        - $ref: '#/components/schemas/ScheduleAppointmentRequest'
+        - type: object
+          properties:
+            reason: { type: string }
+    TechnicianScheduleRequest:
+      type: object
+      properties:
+        task_number: { type: string }
+        reference_code: { type: string }
+        date: { type: string }
+        time: { type: string }
+        contact: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        estimated_duration_minutes: { type: integer }
+        reason: { type: string }
+      required: [date, time]
+    TechnicianDepartArriveRequest:
+      type: object
+      properties:
+        task_number: { type: string }
+        reference_code: { type: string }
+        departed_at: { type: string, format: date-time }
+        arrived_at: { type: string, format: date-time }
+    ConfirmAppointmentRequest:
+      type: object
+      properties:
+        task_number: { type: string }
+        reference_code: { type: string }
+        confirmed: { type: boolean }
+        estimated_duration_minutes: { type: integer }
+      required: [confirmed]
+    CancelAppointmentRequest:
+      type: object
+      properties:
+        task_number: { type: string }
+        reference_code: { type: string }
+        reason: { type: string }
+    CompleteAppointmentTaskRequest:
+      type: object
+      additionalProperties: true
+    AppointmentStatusRequest:
+      type: object
+      properties:
+        task_number: { type: string }
+    FeedbackRequest:
+      type: object
+      additionalProperties: true
+    IncidentRequest:
+      type: object
+      additionalProperties: true
+    AffectedCustomerRequest:
+      type: object
+      additionalProperties: true
+    CommentRequest:
+      type: object
+      additionalProperties: true
+    PriceRequest:
+      type: object
+      additionalProperties: true
+    SubscriberUploadRequest:
+      type: object
+      additionalProperties: true
+    TechnicianLocationRequest:
+      type: object
+      additionalProperties: true
+    ProvisioningRequest:
+      type: object
+      additionalProperties: true
+    ChangeCpeRequest:
+      type: object
+      additionalProperties: true
+    OntDeleteRequest:
+      type: object
+      additionalProperties: true
+    DeleteVlansRequest:
+      type: object
+      additionalProperties: true
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string }
+        supervisor_username: { type: string }
+        group: { type: string }
+    UsersList:
+      type: object
+      properties:
+        success: { type: boolean }
+        users:
+          type: array
+          items: { $ref: '#/components/schemas/User' }
+    Company:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        is_active: { type: boolean }
+    CompaniesList:
+      type: object
+      properties:
+        success: { type: boolean }
+        companies:
+          type: array
+          items: { $ref: '#/components/schemas/Company' }
+    Case:
+      type: object
+      properties:
+        case_id: { type: string }
+        case_number: { type: string }
+        description: { type: string }
+        case_type: { type: string }
+        tasks:
+          type: array
+          items: { $ref: '#/components/schemas/CaseTask' }
+    CaseTask:
+      type: object
+      properties:
+        reference_code: { type: string }
+        task_status_lkp: { type: string }
+        appointment:
+          oneOf:
+            - type: object
+              properties:
+                scheduled_date: { type: string }
+                scheduled_time: { type: string }
+                estimated_duration_minutes: { type: integer }
+                appointment_source: { type: string }
+                appointment_confirmed: { type: boolean }
+                status: { type: string }
+            - type: array
+              items: {}
+    CasesResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        cases:
+          type: array
+          items: { $ref: '#/components/schemas/Case' }
+        bucket_cases:
+          type: array
+          items:
+            type: object
+            properties:
+              bucket: { type: string }
+              cases:
+                type: array
+                items: { $ref: '#/components/schemas/Case' }
+    CaseInfoResponse:
+      type: object
+      additionalProperties: true
+    OfferResponse:
+      type: object
+      additionalProperties: true
+    CustomerNameResponse:
+      type: object
+      additionalProperties: true
+    TokenResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        token: { type: string }
+    AssignCasesResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        cases: { type: object }
+    BucketsResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        buckets:
+          type: array
+          items: { $ref: '#/components/schemas/Bucket' }
+    Bucket:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        owner: { type: string }
+    UploadCasesResponse:
+      type: object
+      additionalProperties: true
+    ReportResponse:
+      type: object
+      additionalProperties: true
+    TasksResponse:
+      type: object
+      additionalProperties: true
+    AppointmentTokenResponse:
+      type: object
+      additionalProperties: true
+    AppointmentTechResponse:
+      type: object
+      additionalProperties: true
+    AppointmentTimeResponse:
+      type: object
+      additionalProperties: true
+    ConfirmAppointmentResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        appointment_confirmed: { type: boolean }
+    AppointmentsList:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+    RatingsList:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+    GenericList:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+    GenericItem:
+      type: object
+      additionalProperties: true
