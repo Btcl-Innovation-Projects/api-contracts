@@ -372,6 +372,24 @@ paths:
       summary: Refresh user task cases
       responses:
         '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/cases/tasks/test-upload/:
+    post:
+      summary: Upload test cases to user (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TestCasesUploadRequest' }
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                file: { type: string, format: binary }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /v2/cone/buckets/:
     get:
       summary: List buckets for user
@@ -1299,6 +1317,14 @@ components:
       properties:
         name: { type: string }
       required: [name]
+    TestCasesUploadRequest:
+      type: object
+      properties:
+        username: { type: string }
+        cases:
+          type: array
+          items: { type: object }
+      required: [username, cases]
     SendAppointmentLinkRequest:
       type: object
       properties:

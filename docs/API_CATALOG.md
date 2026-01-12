@@ -39,6 +39,7 @@ Auth: Bearer JWT unless noted.
 - PATCH `/cases/tasks/{pk}/assign/` - assign task to user
 - GET `/cases/tasks/completed/` - list completed tasks
 - POST `/cases/tasks/refresh/` - refresh user task cases
+- POST `/cases/tasks/test-upload/` - admin test upload of cases to a user
 - GET `/buckets/` - list buckets for user
 - POST `/buckets/` - create bucket
 - POST `/buckets/refresh/` - refresh bucket task cases (C1)
