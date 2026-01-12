@@ -71,6 +71,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - POST `/cases/appointments/status/` - set appointment ongoing
 - POST `/cases/appointments/feedback/submit/` - submit feedback (token)
 - GET `/cases/appointments/` - list appointments with feedbacks
+- GET `/cases/appointments/` filters: `supervisor`, `technician_username`, `date_from`, `date_to`
 - GET `/cases/appointments/summary/` - appointment workload summary
 - GET `/cases/ratings/` - list ratings
 
@@ -116,6 +117,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
   - `unassigned=true`
   - `missing_fields=true` or `missing=cone_username,company,bucket`
 - Ratings filters: `supervisor`, `technician`, `date_from`, `date_to`
+- Appointments filters: `supervisor`, `technician_username`, `date_from`, `date_to`
 
 ## Status Logic Definitions
 - `active/open tasks`: `Task.date_completed IS NULL`

@@ -766,6 +766,18 @@ paths:
     get:
       summary: Get appointments with feedbacks
       parameters:
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: technician_username
+          in: query
+          schema: { type: string }
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
         - name: page
           in: query
           schema: { type: integer }
@@ -2045,6 +2057,14 @@ components:
       type: object
       properties:
         appointment_id: { type: integer }
+        technician_username: { type: string }
+        technician_full_name: { type: string }
+        rating: { type: number }
+        comment: { type: string }
+        created_at: { type: string }
+        case_number: { type: string }
+        task_number: { type: string }
+        reference_code: { type: string }
         scheduled_date: { type: string }
         scheduled_time: { type: string }
         status: { type: string }
@@ -2094,6 +2114,7 @@ components:
       properties:
         rating_id: { type: integer }
         technician: { type: string }
+        technician_username: { type: string }
         feedback_id: { type: integer }
         technician_rating: { type: number }
         service_rating: { type: number }
@@ -2101,6 +2122,7 @@ components:
         created_time: { type: string }
         case_number: { type: string }
         task_number: { type: string }
+        comment: { type: string }
     WorkloadResponse:
       type: object
       properties:
