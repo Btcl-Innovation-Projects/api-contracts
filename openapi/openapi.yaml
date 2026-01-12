@@ -110,6 +110,15 @@ paths:
           in: path
           required: true
           schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
+        - name: ordering
+          in: query
+          schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/UsersList' }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -159,8 +168,29 @@ paths:
           in: query
           required: false
           schema: { type: string }
+        - name: unassigned
+          in: query
+          required: false
+          schema: { type: boolean }
+        - name: missing_fields
+          in: query
+          required: false
+          schema: { type: string }
+        - name: missing
+          in: query
+          required: false
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
+        - name: ordering
+          in: query
+          schema: { type: string }
       responses:
-        '200': { $ref: '#/components/responses/UsersList' }
+        '200': { $ref: '#/components/responses/TeamleaderTechniciansResponse' }
   /v2/accounts/teamleaders/technicians/assign/:
     post:
       summary: Assign technician to teamleader
@@ -196,12 +226,49 @@ paths:
           schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/ReportResponse' }
+  /v2/accounts/teamleaders/reports/technicians/summary/:
+    get:
+      summary: Technician performance summary with trends
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: granularity
+          in: query
+          schema: { type: string, enum: [daily, weekly, monthly, yearly] }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/ReportSummaryResponse' }
+  /v2/accounts/users/{username}/:
+    patch:
+      summary: Update user profile (teamleader/admin)
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateUserProfileRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/UserResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /v2/cone/cases/info/:
     get:
       summary: Get case info from C1
       parameters:
-        - name: case_number
+        - name: key
+          in: query
+          schema: { type: string }
+        - name: value
           in: query
           schema: { type: string }
       responses:
@@ -276,6 +343,16 @@ paths:
   /v2/cone/cases/:
     get:
       summary: Get cases
+      parameters:
+        - name: filter
+          in: query
+          schema: { type: string, enum: [user, all] }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/CasesResponse' }
   /v2/cone/cases/tasks/:
@@ -288,8 +365,14 @@ paths:
         - name: username
           in: query
           schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
       responses:
-        '200': { $ref: '#/components/responses/CasesResponse' }
+        '200': { $ref: '#/components/responses/TasksResponse' }
   /v2/cone/cases/assign/:
     post:
       summary: Assign cases to user
@@ -451,6 +534,18 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/AssignCasesResponse' }
         '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/cone/cases/workload/:
+    get:
+      summary: Workload summary per technician
+      parameters:
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200': { $ref: '#/components/responses/WorkloadResponse' }
   /v2/cone/crm/groups/users/:
     get:
       summary: Get CRM users in group
@@ -633,11 +728,52 @@ paths:
   /v2/servicequality/cases/appointments/:
     get:
       summary: Get appointments with feedbacks
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/AppointmentsList' }
+  /v2/servicequality/cases/appointments/summary/:
+    get:
+      summary: Appointment summary
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: technician
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentSummaryResponse' }
   /v2/servicequality/cases/ratings/:
     get:
       summary: Get ratings
+      parameters:
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: technician
+          in: query
+          schema: { type: string }
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/RatingsList' }
 
@@ -1138,16 +1274,41 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/UploadCasesResponse' }
+    TeamleaderTechniciansResponse:
+      description: Teamleader technicians response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/TeamleaderTechniciansResponse' }
     ReportResponse:
       description: Report response
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ReportResponse' }
+    ReportSummaryResponse:
+      description: Report summary response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ReportSummaryResponse' }
     TasksResponse:
       description: Tasks response
       content:
         application/json:
           schema: { $ref: '#/components/schemas/TasksResponse' }
+    WorkloadResponse:
+      description: Workload response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/WorkloadResponse' }
+    AppointmentSummaryResponse:
+      description: Appointment summary response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AppointmentSummaryResponse' }
+    UserResponse:
+      description: User response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/UserResponse' }
     AppointmentTokenResponse:
       description: Appointment token response
       content:
@@ -1226,6 +1387,14 @@ components:
         cone_username: { type: string }
         company_id: { type: integer }
         bucket_id: { type: string }
+    UpdateUserProfileRequest:
+      type: object
+      properties:
+        cone_username: { type: string }
+        company_id: { type: integer }
+        bucket_id: { type: integer }
+        supervisor_username: { type: string }
+        group: { type: string }
     ChangePasswordRequest:
       type: object
       properties:
@@ -1434,6 +1603,9 @@ components:
         first_name: { type: string }
         last_name: { type: string }
         email: { type: string }
+        cone_username: { type: string }
+        company_id: { type: integer }
+        bucket_id: { type: integer }
         supervisor_username: { type: string }
         group: { type: string }
     UsersList:
@@ -1443,6 +1615,38 @@ components:
         users:
           type: array
           items: { $ref: '#/components/schemas/User' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    TeamleaderTechniciansResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        technicians:
+          type: array
+          items: { $ref: '#/components/schemas/TechnicianSummary' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    TechnicianSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string }
+        cone_username: { type: string }
+        company_id: { type: integer }
+        bucket_id: { type: integer }
+        supervisor_username: { type: string }
+        group: { type: string }
+        supervisor: { type: string }
+        bucket: { type: string }
+        company: { type: string }
     Company:
       type: object
       properties:
@@ -1500,9 +1704,19 @@ components:
               cases:
                 type: array
                 items: { $ref: '#/components/schemas/Case' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
     CaseInfoResponse:
       type: object
-      additionalProperties: true
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        case:
+          type: object
+          additionalProperties: true
+        error: { type: object }
     OfferResponse:
       type: object
       additionalProperties: true
@@ -1538,10 +1752,131 @@ components:
       additionalProperties: true
     ReportResponse:
       type: object
-      additionalProperties: true
+      properties:
+        success: { type: boolean }
+        supervisor: { type: string }
+        filters:
+          type: object
+          properties:
+            date_from: { type: string }
+            date_to: { type: string }
+        team_summary:
+          type: object
+          properties:
+            completed_tasks: { type: integer }
+            avg_tat_hours: { type: number }
+            feedback:
+              type: object
+              properties:
+                count: { type: integer }
+                avg_rating: { type: number }
+                speedtest_conducted: { type: integer }
+                branded_clothing: { type: integer }
+                contractor_identified: { type: integer }
+            ratings:
+              type: object
+              properties:
+                count: { type: integer }
+                avg_rating: { type: number }
+        low_turnaround_problem_areas:
+          type: array
+          items:
+            type: object
+            properties:
+              case_description: { type: string }
+              avg_tat_hours: { type: number }
+              count: { type: integer }
+        high_turnaround_problem_areas:
+          type: array
+          items:
+            type: object
+            properties:
+              case_description: { type: string }
+              avg_tat_hours: { type: number }
+              count: { type: integer }
+        technicians:
+          type: array
+          items:
+            type: object
+            properties:
+              username: { type: string }
+              first_name: { type: string }
+              last_name: { type: string }
+              completed_tasks: { type: integer }
+              avg_tat_hours: { type: number }
+              feedback:
+                type: object
+                properties:
+                  count: { type: integer }
+                  avg_rating: { type: number }
+                  speedtest_conducted: { type: integer }
+                  branded_clothing: { type: integer }
+                  contractor_identified: { type: integer }
+              ratings:
+                type: object
+                properties:
+                  count: { type: integer }
+                  avg_rating: { type: number }
+        completed_tasks:
+          type: array
+          items:
+            type: object
+            properties:
+              task_number: { type: string }
+              case_number: { type: string }
+              case_description: { type: string }
+              assigned_to: { type: string }
+              date_assigned: { type: string }
+              date_completed: { type: string }
+              tat_hours: { type: number }
+    ReportSummaryResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        supervisor: { type: string }
+        granularity: { type: string }
+        team_totals:
+          type: object
+          properties:
+            completed_count: { type: integer }
+            avg_tat_hours: { type: number }
+        per_technician:
+          type: array
+          items:
+            type: object
+            properties:
+              username: { type: string }
+              completed_count: { type: integer }
+              avg_tat_hours: { type: number }
+        trends:
+          type: array
+          items:
+            type: object
+            properties:
+              period: { type: string }
+              completed_count: { type: integer }
+              avg_tat_hours: { type: number }
     TasksResponse:
       type: object
-      additionalProperties: true
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        cases:
+          type: array
+          items: { $ref: '#/components/schemas/Case' }
+        bucket_cases:
+          type: array
+          items:
+            type: object
+            properties:
+              bucket: { type: string }
+              cases:
+                type: array
+                items: { $ref: '#/components/schemas/Case' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
     AppointmentTokenResponse:
       type: object
       additionalProperties: true
@@ -1558,15 +1893,108 @@ components:
         message: { type: string }
         appointment_confirmed: { type: boolean }
     AppointmentsList:
-      type: array
-      items:
-        type: object
-        additionalProperties: true
+      type: object
+      properties:
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/AppointmentWithFeedback' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    AppointmentWithFeedback:
+      type: object
+      properties:
+        appointment_id: { type: integer }
+        scheduled_date: { type: string }
+        scheduled_time: { type: string }
+        status: { type: string }
+        reschedule_count: { type: integer }
+        last_rescheduled_at: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        estimated_duration_minutes: { type: integer }
+        departed_at: { type: string }
+        arrived_at: { type: string }
+        work_started_at: { type: string }
+        work_completed_at: { type: string }
+        appointment_source: { type: string }
+        appointment_confirmed: { type: boolean }
+        feedback:
+          type: object
+          properties:
+            feedback_id: { type: integer }
+            technician_service_feedback_submitted_at: { type: string }
+            service_feedback_submitted_at: { type: string }
+            task_number: { type: string }
+            technician_full_name: { type: string }
+            case_number: { type: string }
+            problem_area: { type: string }
+            customer_name: { type: string }
+            contact: { type: string }
+            contractor_identified: { type: boolean }
+            branded_clothing: { type: boolean }
+            speedtest_conducted: { type: boolean }
+            technician_service_rating: { type: number }
+            customer_effort_score: { type: number }
+            net_promoter_score: { type: number }
+            technician_feedback: { type: string }
+            service_feedback: { type: string }
     RatingsList:
-      type: array
-      items:
-        type: object
-        additionalProperties: true
+      type: object
+      properties:
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/RatingSummary' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    RatingSummary:
+      type: object
+      properties:
+        rating_id: { type: integer }
+        technician: { type: string }
+        feedback_id: { type: integer }
+        technician_rating: { type: number }
+        service_rating: { type: number }
+        created_date: { type: string }
+        created_time: { type: string }
+        case_number: { type: string }
+        task_number: { type: string }
+    WorkloadResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        date: { type: string }
+        supervisor: { type: string }
+        technicians:
+          type: array
+          items:
+            type: object
+            properties:
+              username: { type: string }
+              active_cases_count: { type: integer }
+              open_tasks_count: { type: integer }
+              booked_today_count: { type: integer }
+              pending_confirmation_count: { type: integer }
+              no_date_count: { type: integer }
+              date_not_confirmed_count: { type: integer }
+    AppointmentSummaryResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        date: { type: string }
+        booked_today_count: { type: integer }
+        pending_confirmation_count: { type: integer }
+        no_date_count: { type: integer }
+        date_not_confirmed_count: { type: integer }
+    UserResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        user: { $ref: '#/components/schemas/TechnicianSummary' }
     GenericList:
       type: array
       items:

@@ -20,6 +20,8 @@ Auth: Bearer JWT unless noted.
 - POST `/teamleaders/technicians/assign/` - assign technician
 - POST `/teamleaders/technicians/unassign/` - unassign technician
 - GET `/teamleaders/reports/technicians/` - technician performance report
+- GET `/teamleaders/reports/technicians/summary/` - technician performance summary + trends
+- PATCH `/users/{username}/` - update technician profile fields (teamleader/admin)
 
 ## Cone (`/v2/cone`)
 - GET `/cases/info/` - get case info from C1
@@ -31,6 +33,7 @@ Auth: Bearer JWT unless noted.
 - GET `/cases/` - list cases
 - GET `/cases/tasks/` - list user task cases (Redis)
 - POST `/cases/assign/` - assign cases to user
+- GET `/cases/workload/` - workload summary per technician (teamleader/admin)
 - PATCH `/cases/{case_number}/update/` - update case fields
 - POST `/cases/upload/` - upload locality cases
 - GET `/offers/{pk}/get` - get offer info
@@ -65,6 +68,7 @@ Auth: Bearer JWT unless noted.
 - POST `/cases/appointments/status/` - set appointment ongoing
 - POST `/cases/appointments/feedback/submit/` - submit feedback (token)
 - GET `/cases/appointments/` - list appointments with feedbacks
+- GET `/cases/appointments/summary/` - appointment workload summary
 - GET `/cases/ratings/` - list ratings
 
 ## Network Audit (`/v2/networkaudit`)
@@ -100,3 +104,18 @@ Auth: Bearer JWT unless noted.
 - GET `/subscribers/search` - search VLANs
 - GET `/subscribers/lookup` - subscriber lookup
 - GET `/subscribers/health` - subscriber health
+
+## Pagination & Filtering
+- Pagination parameters: `page`, `page_size` on `/v2/accounts/groups/{group}`, `/v2/accounts/teamleaders/technicians/`, `/v2/cone/cases/`, `/v2/cone/cases/tasks/`, `/v2/servicequality/cases/appointments/`, `/v2/servicequality/cases/ratings/`
+- Sorting: `ordering` on `/v2/accounts/groups/{group}`, `/v2/accounts/teamleaders/technicians/`
+- Teamleader technicians filters:
+  - `supervisor={username}` (admin only)
+  - `unassigned=true`
+  - `missing_fields=true` or `missing=cone_username,company,bucket`
+- Ratings filters: `supervisor`, `technician`, `date_from`, `date_to`
+
+## Status Logic Definitions
+- `active/open tasks`: `Task.date_completed IS NULL`
+- `pending_confirmation`: appointment exists with `appointment_confirmed=false` and `scheduled_date=filter date`
+- `date_not_confirmed`: appointment exists with `appointment_confirmed=false` (any date)
+- `no_date`: open tasks with no appointment record
