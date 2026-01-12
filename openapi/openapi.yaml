@@ -1451,7 +1451,7 @@ components:
       properties:
         cone_username: { type: string }
         company_id: { type: integer }
-        bucket_id: { type: integer }
+        bucket_id: { type: string }
         supervisor_username: { type: string }
         group: { type: string }
     ChangePasswordRequest:
@@ -1689,7 +1689,7 @@ components:
         email: { type: string }
         cone_username: { type: string }
         company_id: { type: integer }
-        bucket_id: { type: integer }
+        bucket_id: { type: string }
         supervisor_username: { type: string }
         group: { type: string }
     UsersList:
@@ -1725,7 +1725,7 @@ components:
         email: { type: string }
         cone_username: { type: string }
         company_id: { type: integer }
-        bucket_id: { type: integer }
+        bucket_id: { type: string }
         supervisor_username: { type: string }
         group: { type: string }
         supervisor: { type: string }
@@ -2057,14 +2057,14 @@ components:
       type: object
       properties:
         appointment_id: { type: integer }
-        technician_username: { type: string }
-        technician_full_name: { type: string }
-        rating: { type: number }
-        comment: { type: string }
-        created_at: { type: string }
-        case_number: { type: string }
-        task_number: { type: string }
-        reference_code: { type: string }
+        technician_username: { type: string, nullable: true }
+        technician_full_name: { type: string, nullable: true }
+        rating: { type: number, nullable: true }
+        comment: { type: string, nullable: true }
+        created_at: { type: string, nullable: true }
+        case_number: { type: string, nullable: true }
+        task_number: { type: string, nullable: true }
+        reference_code: { type: string, nullable: true }
         scheduled_date: { type: string }
         scheduled_time: { type: string }
         status: { type: string }
@@ -2122,7 +2122,7 @@ components:
         created_time: { type: string }
         case_number: { type: string }
         task_number: { type: string }
-        comment: { type: string }
+        comment: { type: string, nullable: true }
     WorkloadResponse:
       type: object
       properties:

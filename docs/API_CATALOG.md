@@ -72,6 +72,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - POST `/cases/appointments/feedback/submit/` - submit feedback (token)
 - GET `/cases/appointments/` - list appointments with feedbacks
 - GET `/cases/appointments/` filters: `supervisor`, `technician_username`, `date_from`, `date_to`
+- Appointments feed includes `technician_username`, `rating`, `comment`, `created_at`, `case_number`, `task_number`
 - GET `/cases/appointments/summary/` - appointment workload summary
 - GET `/cases/ratings/` - list ratings
 
@@ -124,6 +125,10 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - `pending_confirmation`: appointment exists with `appointment_confirmed=false` and `scheduled_date=filter date`
 - `date_not_confirmed`: appointment exists with `appointment_confirmed=false` (any date)
 - `no_date`: open tasks with no appointment record
+
+## ID Types
+- `bucket_id` is a string (Bucket.id is a CharField)
+- `company_id` is an integer
 
 ## Public Proxy (Customer SMS Flow)
 - SMS links point to `https://ztouch-proxy.btc.bw/service/appointments/...`
