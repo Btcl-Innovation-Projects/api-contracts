@@ -108,12 +108,20 @@ Examples:
 
 Service Quality reports:
 - `/v2/servicequality/reports/summary?feedback_type=technician|service&window=rolling_12_months`
-  - cards: totals + averages
+  - cards: totals + averages + weekly response counts + WoW trends
   - series: monthly buckets for last 12 months (only months with data)
 - `/v2/servicequality/reports/lowest-rated?feedback_type=technician|service&window=rolling_12_months&page=&page_size=`
+  - optional: `include_preview=true` returns `feedback_preview` (last 3–5)
   - technician: `technician_username`, `technician_full_name`, `avg_rating`, `rating_count`
   - service: `problem_area`, `avg_nps`, `rating_count`
   - series `rating` meaning: technician = avg CSAT, service = avg NPS
+
+Summary fields:
+- cards: `total_feedbacks`, `avg_csat`, `avg_ces`, `avg_nps`, `avg_rating`, `rating_count`
+- cards.responses: `technicianWeek`, `serviceWeek`, `sentWeekTotal`, `sentLastWeek`
+- cards.trends: `total`, `csat`, `ces`, `nps`, `rating` (WoW % when computable)
+- series[]: `period`, `avg_rating`, `csat`, `ces`, `nps`, `rating_count`
+- response_rate is omitted unless a reliable sent-denominator exists
 
 Report examples:
 - `/v2/servicequality/reports/summary/?feedback_type=technician&window=rolling_12_months`

@@ -2291,22 +2291,36 @@ components:
           type: object
           properties:
             total_feedbacks: { type: integer }
-            average_CSAT: { type: number, nullable: true }
-            average_CES: { type: number, nullable: true }
-            average_NPS: { type: number, nullable: true }
-            responses_this_week: { type: integer }
-            responses_last_week: { type: integer }
-            wow_percent: { type: number, nullable: true }
+            avg_csat: { type: number, nullable: true }
+            avg_ces: { type: number, nullable: true }
+            avg_nps: { type: number, nullable: true }
+            avg_rating: { type: number, nullable: true }
+            rating_count: { type: integer }
+            responses:
+              type: object
+              properties:
+                technicianWeek: { type: integer, nullable: true }
+                serviceWeek: { type: integer, nullable: true }
+                sentWeekTotal: { type: integer, nullable: true }
+                sentLastWeek: { type: integer, nullable: true }
+            trends:
+              type: object
+              properties:
+                total: { type: number, nullable: true }
+                csat: { type: number, nullable: true }
+                ces: { type: number, nullable: true }
+                nps: { type: number, nullable: true }
+                rating: { type: number, nullable: true }
         series:
           type: array
           items:
             type: object
             properties:
-              month: { type: string }
-              rating: { type: number, nullable: true }
-              CSAT: { type: number, nullable: true }
-              CES: { type: number, nullable: true }
-              NPS: { type: number, nullable: true }
+              period: { type: string }
+              avg_rating: { type: number, nullable: true }
+              csat: { type: number, nullable: true }
+              ces: { type: number, nullable: true }
+              nps: { type: number, nullable: true }
               rating_count: { type: integer }
     ServiceQualityLowestRatedResponse:
       type: object
