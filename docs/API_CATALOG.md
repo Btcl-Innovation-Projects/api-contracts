@@ -94,10 +94,10 @@ All counts use DB Task + Appointment only (no Redis).
 
 Examples:
 1) Technician feedback only (all time)
-`/v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&page=1&page_size=50`
+`/v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&page=1&page_size=10`
 
 2) Service feedback only (all time)
-`/v2/servicequality/cases/appointments/?feedback_type=service&has_service_feedback=true&page=1&page_size=50`
+`/v2/servicequality/cases/appointments/?feedback_type=service&has_service_feedback=true&page=1&page_size=10`
 
 3) Technician feedback for a technician + date range
 `/v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&technician_username=<technician_username>&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD&page=1&page_size=50`
@@ -113,6 +113,11 @@ Service Quality reports:
 - `/v2/servicequality/reports/lowest-rated?feedback_type=technician|service&window=rolling_12_months&page=&page_size=`
   - technician: `technician_username`, `technician_full_name`, `avg_rating`, `rating_count`
   - service: `problem_area`, `avg_nps`, `rating_count`
+  - series `rating` meaning: technician = avg CSAT, service = avg NPS
+
+Report examples:
+- `/v2/servicequality/reports/summary/?feedback_type=technician&window=rolling_12_months`
+- `/v2/servicequality/reports/lowest-rated/?feedback_type=technician&window=rolling_12_months&page=1&page_size=20`
 
 ## Network Audit (`/v2/networkaudit`)
 - GET `/copper-theft/reports/` - copper theft reports

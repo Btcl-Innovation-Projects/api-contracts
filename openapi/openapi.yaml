@@ -787,6 +787,10 @@ paths:
   /v2/servicequality/cases/appointments/:
     get:
       summary: Get appointments with feedbacks
+      description: |
+        Examples:
+        - /v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&page=1&page_size=10
+        - /v2/servicequality/cases/appointments/?feedback_type=service&has_service_feedback=true&page=1&page_size=10
       parameters:
         - name: supervisor
           in: query
@@ -862,6 +866,9 @@ paths:
   /v2/servicequality/reports/summary/:
     get:
       summary: Service quality summary report
+      description: |
+        Example:
+        - /v2/servicequality/reports/summary/?feedback_type=technician&window=rolling_12_months
       parameters:
         - name: feedback_type
           in: query
@@ -869,13 +876,32 @@ paths:
           schema: { type: string, enum: [technician, service] }
         - name: window
           in: query
-          required: true
+          required: false
           schema: { type: string, enum: [rolling_12_months] }
+        - name: supervisor
+          in: query
+          required: false
+          schema: { type: string }
+        - name: technician_username
+          in: query
+          required: false
+          schema: { type: string }
+        - name: date_from
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          required: false
+          schema: { type: string, format: date }
       responses:
         '200': { $ref: '#/components/responses/ServiceQualitySummaryResponse' }
   /v2/servicequality/reports/lowest-rated/:
     get:
       summary: Service quality lowest-rated listing
+      description: |
+        Example:
+        - /v2/servicequality/reports/lowest-rated/?feedback_type=technician&window=rolling_12_months&page=1&page_size=20
       parameters:
         - name: feedback_type
           in: query
@@ -883,8 +909,28 @@ paths:
           schema: { type: string, enum: [technician, service] }
         - name: window
           in: query
-          required: true
+          required: false
           schema: { type: string, enum: [rolling_12_months] }
+        - name: supervisor
+          in: query
+          required: false
+          schema: { type: string }
+        - name: technician_username
+          in: query
+          required: false
+          schema: { type: string }
+        - name: date_from
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: include_preview
+          in: query
+          required: false
+          schema: { type: boolean }
         - name: page
           in: query
           schema: { type: integer }
@@ -2234,19 +2280,33 @@ components:
         success: { type: boolean }
         feedback_type: { type: string }
         window: { type: string }
+        filters:
+          type: object
+          properties:
+            supervisor: { type: string }
+            technician_username: { type: string }
+            date_from: { type: string }
+            date_to: { type: string }
         cards:
           type: object
           properties:
-            total_feedback: { type: integer }
-            avg_rating: { type: number }
-            rating_count: { type: integer }
+            total_feedbacks: { type: integer }
+            average_CSAT: { type: number, nullable: true }
+            average_CES: { type: number, nullable: true }
+            average_NPS: { type: number, nullable: true }
+            responses_this_week: { type: integer }
+            responses_last_week: { type: integer }
+            wow_percent: { type: number, nullable: true }
         series:
           type: array
           items:
             type: object
             properties:
-              period: { type: string }
-              avg_rating: { type: number }
+              month: { type: string }
+              rating: { type: number, nullable: true }
+              CSAT: { type: number, nullable: true }
+              CES: { type: number, nullable: true }
+              NPS: { type: number, nullable: true }
               rating_count: { type: integer }
     ServiceQualityLowestRatedResponse:
       type: object
@@ -2265,6 +2325,19 @@ components:
               rating_count: { type: integer }
               problem_area: { type: string }
               avg_nps: { type: number }
+              feedback_preview:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    customer_name: { type: string }
+                    rating: { type: number }
+                    nps: { type: number }
+                    technician_full_name: { type: string }
+                    case_number: { type: string }
+                    submitted_at: { type: string }
+                    comment: { type: string }
+                    service_feedback: { type: string }
         page: { type: integer }
         page_size: { type: integer }
         total: { type: integer }
