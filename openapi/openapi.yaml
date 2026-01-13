@@ -859,6 +859,40 @@ paths:
           schema: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/RatingsList' }
+  /v2/servicequality/reports/summary/:
+    get:
+      summary: Service quality summary report
+      parameters:
+        - name: feedback_type
+          in: query
+          required: true
+          schema: { type: string, enum: [technician, service] }
+        - name: window
+          in: query
+          required: true
+          schema: { type: string, enum: [rolling_12_months] }
+      responses:
+        '200': { $ref: '#/components/responses/ServiceQualitySummaryResponse' }
+  /v2/servicequality/reports/lowest-rated/:
+    get:
+      summary: Service quality lowest-rated listing
+      parameters:
+        - name: feedback_type
+          in: query
+          required: true
+          schema: { type: string, enum: [technician, service] }
+        - name: window
+          in: query
+          required: true
+          schema: { type: string, enum: [rolling_12_months] }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/ServiceQualityLowestRatedResponse' }
 
   /v2/networkaudit/copper-theft/reports/:
     get:
@@ -1437,6 +1471,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/RatingsList' }
+    ServiceQualitySummaryResponse:
+      description: Service quality summary response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ServiceQualitySummaryResponse' }
+    ServiceQualityLowestRatedResponse:
+      description: Service quality lowest-rated response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ServiceQualityLowestRatedResponse' }
     GenericList:
       description: Generic list
       content:
@@ -2180,6 +2224,47 @@ components:
         results:
           type: array
           items: { $ref: '#/components/schemas/RatingSummary' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    ServiceQualitySummaryResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        feedback_type: { type: string }
+        window: { type: string }
+        cards:
+          type: object
+          properties:
+            total_feedback: { type: integer }
+            avg_rating: { type: number }
+            rating_count: { type: integer }
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              period: { type: string }
+              avg_rating: { type: number }
+              rating_count: { type: integer }
+    ServiceQualityLowestRatedResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        feedback_type: { type: string }
+        window: { type: string }
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              technician_username: { type: string }
+              technician_full_name: { type: string }
+              avg_rating: { type: number }
+              rating_count: { type: integer }
+              problem_area: { type: string }
+              avg_nps: { type: number }
         page: { type: integer }
         page_size: { type: integer }
         total: { type: integer }

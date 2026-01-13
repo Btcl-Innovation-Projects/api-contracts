@@ -103,6 +103,16 @@ Examples:
 `/v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&technician_username=<technician_username>&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD&page=1&page_size=50`
 - GET `/cases/appointments/summary/` - appointment workload summary
 - GET `/cases/ratings/` - list ratings
+- GET `/reports/summary/` - service quality summary cards + rolling 12-month series
+- GET `/reports/lowest-rated/` - lowest-rated listing (technician or service)
+
+Service Quality reports:
+- `/v2/servicequality/reports/summary?feedback_type=technician|service&window=rolling_12_months`
+  - cards: totals + averages
+  - series: monthly buckets for last 12 months (only months with data)
+- `/v2/servicequality/reports/lowest-rated?feedback_type=technician|service&window=rolling_12_months&page=&page_size=`
+  - technician: `technician_username`, `technician_full_name`, `avg_rating`, `rating_count`
+  - service: `problem_area`, `avg_nps`, `rating_count`
 
 ## Network Audit (`/v2/networkaudit`)
 - GET `/copper-theft/reports/` - copper theft reports
