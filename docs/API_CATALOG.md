@@ -18,6 +18,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - PATCH `/companies/{company_id}/` - update company
 - DELETE `/companies/{company_id}/` - delete company
 - GET `/teamleaders/technicians/` - list technicians under teamleader
+- GET `/teamleaders/technicians/` search: `search=<text>` matches username, first_name, last_name, email, cone_username
 - POST `/teamleaders/technicians/assign/` - assign technician
 - POST `/teamleaders/technicians/unassign/` - unassign technician
 - GET `/teamleaders/reports/technicians/` - technician performance report

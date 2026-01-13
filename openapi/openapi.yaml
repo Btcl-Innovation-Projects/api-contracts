@@ -166,6 +166,10 @@ paths:
     get:
       summary: List technicians under teamleader
       parameters:
+        - name: search
+          in: query
+          required: false
+          schema: { type: string }
         - name: supervisor
           in: query
           required: false
