@@ -800,6 +800,15 @@ paths:
         - name: date_to
           in: query
           schema: { type: string, format: date }
+        - name: feedback_type
+          in: query
+          schema: { type: string, enum: [technician, service] }
+        - name: has_technician_feedback
+          in: query
+          schema: { type: boolean }
+        - name: has_service_feedback
+          in: query
+          schema: { type: boolean }
         - name: page
           in: query
           schema: { type: integer }

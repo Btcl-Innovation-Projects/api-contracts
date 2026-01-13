@@ -76,6 +76,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/cases/appointments/` - list appointments with feedbacks
 - GET `/cases/appointments/` filters: `supervisor`, `technician_username`, `date_from`, `date_to`
 - Appointments feed includes `technician_username`, `rating`, `comment`, `created_at`, `case_number`, `task_number`
+- Feedback filters: `feedback_type=technician|service`, `has_technician_feedback=true|false`, `has_service_feedback=true|false`
 - GET `/cases/appointments/summary/` - appointment workload summary
 - GET `/cases/ratings/` - list ratings
 
