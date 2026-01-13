@@ -22,6 +22,8 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - POST `/teamleaders/technicians/unassign/` - unassign technician
 - GET `/teamleaders/reports/technicians/` - technician performance report
 - GET `/teamleaders/reports/technicians/summary/` - technician performance summary + trends
+- GET `/teamleaders/reports/technicians/summary/` supports `technician` to scope to one technician
+- GET `/teamleaders/reports/technicians/lowest/` - lowest performing technician tile
 - PATCH `/users/{username}/` - update technician profile fields (teamleader/admin)
 
 ## Cone (`/v2/cone`)

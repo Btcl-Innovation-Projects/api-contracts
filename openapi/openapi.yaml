@@ -232,6 +232,9 @@ paths:
     get:
       summary: Technician performance summary with trends
       parameters:
+        - name: technician
+          in: query
+          schema: { type: string }
         - name: date_from
           in: query
           schema: { type: string, format: date }
@@ -246,6 +249,21 @@ paths:
           schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/ReportSummaryResponse' }
+  /v2/accounts/teamleaders/reports/technicians/lowest/:
+    get:
+      summary: Lowest performing technician summary
+      parameters:
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200': { $ref: '#/components/responses/LowestTechnicianResponse' }
   /v2/accounts/users/{username}/:
     patch:
       summary: Update user profile (teamleader/admin)
@@ -1338,6 +1356,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ReportSummaryResponse' }
+    LowestTechnicianResponse:
+      description: Lowest technician response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/LowestTechnicianResponse' }
     TasksResponse:
       description: Tasks response
       content:
@@ -1940,6 +1963,16 @@ components:
               period: { type: string }
               completed_count: { type: integer }
               avg_tat_hours: { type: number }
+    LowestTechnicianResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        technician_username: { type: string }
+        avg_rating: { type: number }
+        rating_count: { type: integer }
+        last_3_comments_snippets:
+          type: array
+          items: { type: string }
     TasksResponse:
       type: object
       properties:
