@@ -77,6 +77,17 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/cases/appointments/` filters: `supervisor`, `technician_username`, `date_from`, `date_to`
 - Appointments feed includes `technician_username`, `rating`, `comment`, `created_at`, `case_number`, `task_number`
 - Feedback filters: `feedback_type=technician|service`, `has_technician_feedback=true|false`, `has_service_feedback=true|false`
+  - Precedence: `feedback_type` is applied first; `has_*` filters further narrow the result.
+
+Examples:
+1) Technician feedback only (all time)
+`/v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&page=1&page_size=50`
+
+2) Service feedback only (all time)
+`/v2/servicequality/cases/appointments/?feedback_type=service&has_service_feedback=true&page=1&page_size=50`
+
+3) Technician feedback for a technician + date range
+`/v2/servicequality/cases/appointments/?feedback_type=technician&has_technician_feedback=true&technician_username=<technician_username>&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD&page=1&page_size=50`
 - GET `/cases/appointments/summary/` - appointment workload summary
 - GET `/cases/ratings/` - list ratings
 

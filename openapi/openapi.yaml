@@ -803,12 +803,15 @@ paths:
         - name: feedback_type
           in: query
           schema: { type: string, enum: [technician, service] }
+          example: technician
         - name: has_technician_feedback
           in: query
           schema: { type: boolean }
+          example: true
         - name: has_service_feedback
           in: query
           schema: { type: boolean }
+          example: false
         - name: page
           in: query
           schema: { type: integer }
