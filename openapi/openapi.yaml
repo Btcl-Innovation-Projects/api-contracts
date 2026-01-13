@@ -1958,6 +1958,7 @@ components:
         success: { type: boolean }
         supervisor: { type: string }
         granularity: { type: string }
+        avg_turnaround_hours: { type: number }
         team_totals:
           type: object
           properties:
@@ -1979,6 +1980,31 @@ components:
               period: { type: string }
               completed_count: { type: integer }
               avg_tat_hours: { type: number }
+        turnaround_trends:
+          type: array
+          items:
+            type: object
+            properties:
+              period: { type: string }
+              avg_turnaround_hours: { type: number }
+              completed_count: { type: integer }
+        rating_trends:
+          type: array
+          items:
+            type: object
+            properties:
+              period: { type: string }
+              avg_rating: { type: number }
+              rating_count: { type: integer }
+        pending_counts:
+          type: object
+          properties:
+            pending_no_date: { type: integer }
+            pending_not_confirmed: { type: integer }
+            pending_confirmed: { type: integer }
+            completed_today: { type: integer }
+            created_today: { type: integer }
+            closed_today: { type: integer }
     LowestTechnicianResponse:
       type: object
       properties:

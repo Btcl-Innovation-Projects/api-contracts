@@ -25,6 +25,19 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/teamleaders/reports/technicians/summary/` - technician performance summary + trends
 - GET `/teamleaders/reports/technicians/summary/` supports `technician` to scope to one technician
 - GET `/teamleaders/reports/technicians/lowest/` - lowest performing technician tile
+
+Reports summary additions:
+- `rating_trends`: monthly team/technician rating trend for last 12 months (only months with data)
+- `turnaround_trends`: monthly turnaround trend for last 12 months (only months with data)
+- `avg_turnaround_hours`: aggregate turnaround for current scope
+- `pending_counts`:
+  - `pending_no_date`: open tasks with no appointment
+  - `pending_not_confirmed`: open tasks with appointment_confirmed=false
+  - `pending_confirmed`: open tasks with appointment_confirmed=true
+  - `created_today`: tasks with date_assigned=today
+  - `completed_today`: tasks with date_completed=today
+  - `closed_today`: same as completed_today (task completion)
+All counts use DB Task + Appointment only (no Redis).
 - PATCH `/users/{username}/` - update technician profile fields (teamleader/admin)
 
 ## Cone (`/v2/cone`)
