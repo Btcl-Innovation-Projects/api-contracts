@@ -31,7 +31,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/leadops/reports/teamleaders/` - LeadOps teamleader technicians report
 - GET `/leadops/reports/teamleaders/summary/` - LeadOps teamleader technicians summary + trends
 - GET `/leadops/reports/overall/summary/` - LeadOps overall technicians summary + trends
-  - `leadops/reports/teamleaders/*` requires `supervisor`
+  - `leadops/reports/teamleaders/*` returns all teamleaders by default; `supervisor` is optional filter
 
 Reports summary additions:
 - `rating_trends`: monthly team/technician rating trend for last 12 months (only months with data)

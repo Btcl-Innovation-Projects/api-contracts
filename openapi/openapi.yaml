@@ -331,7 +331,6 @@ paths:
           schema: { type: string, format: date }
         - name: supervisor
           in: query
-          required: true
           schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/ReportResponse' }
@@ -353,7 +352,6 @@ paths:
           schema: { type: string, enum: [daily, weekly, monthly, yearly] }
         - name: supervisor
           in: query
-          required: true
           schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/ReportSummaryResponse' }
