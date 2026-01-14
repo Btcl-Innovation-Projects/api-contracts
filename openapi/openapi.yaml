@@ -268,6 +268,110 @@ paths:
           schema: { type: string, format: date }
       responses:
         '200': { $ref: '#/components/responses/LowestTechnicianResponse' }
+  /v2/accounts/teamleaders/reports/external/technicians/:
+    get:
+      summary: External teamleaders technician performance report
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/ReportResponse' }
+  /v2/accounts/teamleaders/reports/external/technicians/summary/:
+    get:
+      summary: External teamleaders technician performance summary
+      parameters:
+        - name: technician
+          in: query
+          schema: { type: string }
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: granularity
+          in: query
+          schema: { type: string, enum: [daily, weekly, monthly, yearly] }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/ReportSummaryResponse' }
+  /v2/accounts/teamleaders/reports/external/technicians/lowest/:
+    get:
+      summary: External teamleaders lowest performing technician summary
+      parameters:
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200': { $ref: '#/components/responses/LowestTechnicianResponse' }
+  /v2/accounts/leadops/reports/teamleaders/:
+    get:
+      summary: LeadOps teamleader technician performance report
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: supervisor
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/ReportResponse' }
+  /v2/accounts/leadops/reports/teamleaders/summary/:
+    get:
+      summary: LeadOps teamleader technician performance summary
+      parameters:
+        - name: technician
+          in: query
+          schema: { type: string }
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: granularity
+          in: query
+          schema: { type: string, enum: [daily, weekly, monthly, yearly] }
+        - name: supervisor
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/ReportSummaryResponse' }
+  /v2/accounts/leadops/reports/overall/summary/:
+    get:
+      summary: LeadOps overall technician performance summary
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: granularity
+          in: query
+          schema: { type: string, enum: [daily, weekly, monthly, yearly] }
+      responses:
+        '200': { $ref: '#/components/responses/ReportSummaryResponse' }
   /v2/accounts/users/{username}/:
     patch:
       summary: Update user profile (teamleader/admin)
@@ -2287,6 +2391,7 @@ components:
             technician_username: { type: string }
             date_from: { type: string }
             date_to: { type: string }
+            timezone: { type: string }
         cards:
           type: object
           properties:
@@ -2300,7 +2405,9 @@ components:
               type: object
               properties:
                 technicianWeek: { type: integer, nullable: true }
+                technicianLastWeek: { type: integer, nullable: true }
                 serviceWeek: { type: integer, nullable: true }
+                serviceLastWeek: { type: integer, nullable: true }
                 sentWeekTotal: { type: integer, nullable: true }
                 sentLastWeek: { type: integer, nullable: true }
             trends:

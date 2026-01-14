@@ -25,6 +25,13 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/teamleaders/reports/technicians/summary/` - technician performance summary + trends
 - GET `/teamleaders/reports/technicians/summary/` supports `technician` to scope to one technician
 - GET `/teamleaders/reports/technicians/lowest/` - lowest performing technician tile
+- GET `/teamleaders/reports/external/technicians/` - external teamleader technicians report
+- GET `/teamleaders/reports/external/technicians/summary/` - external teamleader technicians summary + trends
+- GET `/teamleaders/reports/external/technicians/lowest/` - external teamleader lowest technician summary
+- GET `/leadops/reports/teamleaders/` - LeadOps teamleader technicians report
+- GET `/leadops/reports/teamleaders/summary/` - LeadOps teamleader technicians summary + trends
+- GET `/leadops/reports/overall/summary/` - LeadOps overall technicians summary + trends
+  - `leadops/reports/teamleaders/*` requires `supervisor`
 
 Reports summary additions:
 - `rating_trends`: monthly team/technician rating trend for last 12 months (only months with data)
@@ -110,6 +117,9 @@ Service Quality reports:
 - `/v2/servicequality/reports/summary?feedback_type=technician|service&window=rolling_12_months`
   - cards: totals + averages + weekly response counts + WoW trends
   - series: monthly buckets for last 12 months (only months with data)
+  - timezone: uses backend TIME_ZONE (Africa/Gaborone). Weeks are Mon 00:00 to Sun 23:59:59.
+  - averages rounded to 1 decimal
+  - date_from/date_to override window; response window becomes `date_range`
 - `/v2/servicequality/reports/lowest-rated?feedback_type=technician|service&window=rolling_12_months&page=&page_size=`
   - optional: `include_preview=true` returns `feedback_preview` (last 3–5)
   - technician: `technician_username`, `technician_full_name`, `avg_rating`, `rating_count`
@@ -118,7 +128,7 @@ Service Quality reports:
 
 Summary fields:
 - cards: `total_feedbacks`, `avg_csat`, `avg_ces`, `avg_nps`, `avg_rating`, `rating_count`
-- cards.responses: `technicianWeek`, `serviceWeek`, `sentWeekTotal`, `sentLastWeek`
+- cards.responses: `technicianWeek`, `technicianLastWeek`, `serviceWeek`, `serviceLastWeek`, `sentWeekTotal`, `sentLastWeek`
 - cards.trends: `total`, `csat`, `ces`, `nps`, `rating` (WoW % when computable)
 - series[]: `period`, `avg_rating`, `csat`, `ces`, `nps`, `rating_count`
 - response_rate is omitted unless a reliable sent-denominator exists
