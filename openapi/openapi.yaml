@@ -398,6 +398,9 @@ paths:
         - name: supervisor
           in: query
           schema: { type: string }
+        - name: scope
+          in: query
+          schema: { type: string, enum: [combined, internal, external] }
       responses:
         '200': { $ref: '#/components/responses/ReportResponse' }
   /v2/accounts/leadops/reports/teamleaders/summary/:
@@ -419,6 +422,9 @@ paths:
         - name: supervisor
           in: query
           schema: { type: string }
+        - name: scope
+          in: query
+          schema: { type: string, enum: [combined, internal, external] }
       responses:
         '200': { $ref: '#/components/responses/ReportSummaryResponse' }
   /v2/accounts/leadops/reports/overall/summary/:
@@ -434,8 +440,59 @@ paths:
         - name: granularity
           in: query
           schema: { type: string, enum: [daily, weekly, monthly, yearly] }
+        - name: scope
+          in: query
+          schema: { type: string, enum: [combined, internal, external] }
       responses:
         '200': { $ref: '#/components/responses/ReportSummaryResponse' }
+  /v2/accounts/leadops/reports/teamleaders/list/:
+    get:
+      summary: LeadOps teamleaders list summary
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: granularity
+          in: query
+          schema: { type: string, enum: [daily, weekly, monthly, yearly] }
+        - name: scope
+          in: query
+          schema: { type: string, enum: [combined, internal, external] }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
+        - name: ordering
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/LeadOpsTeamleadersListResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /v2/accounts/leadops/reports/technicians/lowest/:
+    get:
+      summary: LeadOps lowest performing technician
+      parameters:
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: scope
+          in: query
+          schema: { type: string, enum: [combined, internal, external] }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/LeadOpsLowestTechnicianResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /v2/accounts/users/{username}/:
     patch:
       summary: Update user profile (teamleader/admin)
@@ -1640,6 +1697,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ReportSummaryResponse' }
+    LeadOpsTeamleadersListResponse:
+      description: LeadOps teamleaders list response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/LeadOpsTeamleadersListResponse' }
+    LeadOpsLowestTechnicianResponse:
+      description: LeadOps lowest technician response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/LeadOpsLowestTechnicianResponse' }
     LowestTechnicianResponse:
       description: Lowest technician response
       content:
@@ -2349,6 +2416,53 @@ components:
       properties:
         success: { type: boolean }
         technician_username: { type: string }
+        avg_rating: { type: number }
+        rating_count: { type: integer }
+        last_3_comments_snippets:
+          type: array
+          items: { type: string }
+    LeadOpsTeamleadersListResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        filters:
+          type: object
+          properties:
+            date_from: { type: string }
+            date_to: { type: string }
+            granularity: { type: string }
+            scope: { type: string }
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/LeadOpsTeamleaderSummary' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    LeadOpsTeamleaderSummary:
+      type: object
+      properties:
+        supervisor_username: { type: string }
+        supervisor_full_name: { type: string }
+        completed_count: { type: integer }
+        avg_tat_hours: { type: number }
+        rating_count: { type: integer }
+        avg_rating: { type: number }
+        ces_count: { type: integer }
+        avg_ces: { type: number }
+        open_tasks_count_total: { type: integer }
+        pending_confirmation_count: { type: integer }
+        confirmed_scheduled_count: { type: integer }
+        no_date_count: { type: integer }
+        completed_today: { type: integer }
+        created_today: { type: integer }
+        closed_today: { type: integer }
+    LeadOpsLowestTechnicianResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        technician_username: { type: string }
+        technician_full_name: { type: string }
         avg_rating: { type: number }
         rating_count: { type: integer }
         last_3_comments_snippets:
