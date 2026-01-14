@@ -162,6 +162,45 @@ paths:
           schema: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/accounts/users/:
+    get:
+      summary: List users (admin only)
+      description: Admin-only user list for management UI.
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: group
+          in: query
+          schema: { type: string }
+        - name: company_id
+          in: query
+          schema: { type: integer }
+        - name: supervisor
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: page_size
+          in: query
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/AdminUsersList' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/accounts/users/{username}/:
+    get:
+      summary: Get user detail (admin only)
+      description: Admin-only user detail for management UI.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/AdminUserDetail' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /v2/accounts/teamleaders/technicians/:
     get:
       summary: List technicians under teamleader
@@ -207,6 +246,7 @@ paths:
             schema: { $ref: '#/components/schemas/AssignTechnicianRequest' }
       responses:
         '200': { $ref: '#/components/responses/SuccessMessage' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /v2/accounts/teamleaders/technicians/unassign/:
     post:
       summary: Unassign technician from teamleader
@@ -1464,6 +1504,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     Conflict:
       description: Conflict
       content:
@@ -1479,6 +1524,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/UsersList' }
+    AdminUsersList:
+      description: Admin users list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AdminUsersList' }
+    AdminUserDetail:
+      description: Admin user detail
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/AdminUserDetail' }
     CompaniesList:
       description: Companies list
       content:
@@ -1685,6 +1740,9 @@ components:
         bucket_id: { type: string }
         supervisor_username: { type: string }
         group: { type: string }
+        groups:
+          type: array
+          items: { type: string }
     ChangePasswordRequest:
       type: object
       properties:
@@ -1934,6 +1992,34 @@ components:
         page_size: { type: integer }
         total: { type: integer }
         total_pages: { type: integer }
+    AdminUserSummary:
+      type: object
+      properties:
+        username: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        groups:
+          type: array
+          items: { type: string }
+        company_id: { type: integer, nullable: true }
+        company_name: { type: string, nullable: true }
+        supervisor_username: { type: string, nullable: true }
+    AdminUsersList:
+      type: object
+      properties:
+        success: { type: boolean }
+        users:
+          type: array
+          items: { $ref: '#/components/schemas/AdminUserSummary' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    AdminUserDetail:
+      type: object
+      properties:
+        success: { type: boolean }
+        user: { $ref: '#/components/schemas/AdminUserSummary' }
     TeamleaderTechniciansResponse:
       type: object
       properties:

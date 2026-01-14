@@ -13,6 +13,9 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - POST `/forgot-password/` - forgot password (no auth)
 - POST `/expo/update-token/` - update Expo push token
 - GET `/groups/{group}` - list users in group
+- GET `/users/` - list users (admin only)
+  - filters: `q`, `group`, `company_id`, `supervisor`, `page`, `page_size`
+- GET `/users/{username}/` - user detail (admin only)
 - GET `/companies/` - list companies
 - POST `/companies/` - create company
 - PATCH `/companies/{company_id}/` - update company
@@ -46,6 +49,10 @@ Reports summary additions:
   - `closed_today`: same as completed_today (task completion)
 All counts use DB Task + Appointment only (no Redis).
 - PATCH `/users/{username}/` - update technician profile fields (teamleader/admin)
+  - optional `groups: []` to set multiple groups (admin only); `group` remains for single-group updates
+
+Notes:
+- `/teamleaders/technicians/assign/` returns `error=BUCKET_NOT_FOUND` when the bucket is not owned by supervisor.
 
 ## Cone (`/v2/cone`)
 - GET `/cases/info/` - get case info from C1
