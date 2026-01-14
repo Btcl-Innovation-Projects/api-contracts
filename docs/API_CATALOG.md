@@ -17,6 +17,9 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
   - filters: `q`, `group`, `company_id`, `supervisor`, `page`, `page_size`
   - fields: `id`, `username`, `first_name`, `last_name`, `email`, `is_active`, `groups[]`, `contact`, `contact2`, `cone_username`, `company_id`, `company_name`, `bucket_id`, `bucket_name`, `supervisor_username`, `supervisor_full_name`
 - GET `/users/{username}/` - user detail (admin only)
+- PATCH `/users/{username}/` - update user (admin/teamleader)
+  - fields: `first_name`, `last_name`, `email`, `contact`, `contact2`, `is_active`, `cone_username`, `company_id`, `bucket_id`, `supervisor_username`, `group`, `groups[]`
+  - email must be valid and unique; `contact`/`contact2` accept `null` or `"NA"` (stored as null)
 - GET `/companies/` - list companies
 - POST `/companies/` - create company
 - PATCH `/companies/{company_id}/` - update company

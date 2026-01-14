@@ -1766,6 +1766,12 @@ components:
     UpdateUserProfileRequest:
       type: object
       properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        contact: { type: string, nullable: true }
+        contact2: { type: string, nullable: true }
+        is_active: { type: boolean }
         cone_username: { type: string }
         company_id: { type: integer }
         bucket_id: { type: string }
@@ -2092,6 +2098,9 @@ components:
         first_name: { type: string }
         last_name: { type: string }
         email: { type: string }
+        is_active: { type: boolean }
+        contact: { type: string, nullable: true }
+        contact2: { type: string, nullable: true }
         cone_username: { type: string }
         company_id: { type: integer }
         bucket_id: { type: string }
