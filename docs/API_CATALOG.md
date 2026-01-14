@@ -22,7 +22,12 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - DELETE `/companies/{company_id}/` - delete company
 - GET `/teamleaders/technicians/` - list technicians under teamleader
 - GET `/teamleaders/technicians/` search: `search=<text>` matches username, first_name, last_name, email, cone_username
+- GET `/teamleaders/{supervisor_username}/buckets/` - list buckets for a teamleader (admin only)
+  - used by assignment UI when supervisor has multiple buckets
+- GET `/teamleaders/buckets/` - list buckets for a teamleader (admin only)
+  - requires `supervisor`
 - POST `/teamleaders/technicians/assign/` - assign technician
+- `bucket_name` optional; if omitted and supervisor has exactly one bucket it is auto-assigned, if >1 buckets then 400 `bucket_name` required
 - POST `/teamleaders/technicians/unassign/` - unassign technician
 - GET `/teamleaders/reports/technicians/` - technician performance report
 - GET `/teamleaders/reports/technicians/summary/` - technician performance summary + trends

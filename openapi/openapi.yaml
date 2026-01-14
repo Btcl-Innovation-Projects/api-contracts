@@ -236,6 +236,32 @@ paths:
           schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/TeamleaderTechniciansResponse' }
+  /v2/accounts/teamleaders/{supervisor_username}/buckets/:
+    get:
+      summary: List buckets for a teamleader (admin only)
+      description: Admin-only endpoint for assignment UI to pick a bucket.
+      parameters:
+        - name: supervisor_username
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/TeamleaderBucketsResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v2/accounts/teamleaders/buckets/:
+    get:
+      summary: List buckets for a teamleader (admin only)
+      parameters:
+        - name: supervisor
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/BucketsResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /v2/accounts/teamleaders/technicians/assign/:
     post:
       summary: Assign technician to teamleader
@@ -1534,6 +1560,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/AdminUserDetail' }
+    TeamleaderBucketsResponse:
+      description: Teamleader buckets response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/TeamleaderBucketsResponse' }
     CompaniesList:
       description: Companies list
       content:
@@ -1779,7 +1810,7 @@ components:
       properties:
         technician: { type: string }
         supervisor: { type: string }
-        bucket: { type: string }
+        bucket_name: { type: string }
     UnassignTechnicianRequest:
       type: object
       properties:
@@ -2020,6 +2051,18 @@ components:
       properties:
         success: { type: boolean }
         user: { $ref: '#/components/schemas/AdminUserSummary' }
+    TeamleaderBucketsResponse:
+      type: object
+      properties:
+        supervisor: { type: string }
+        buckets:
+          type: array
+          items: { $ref: '#/components/schemas/TeamleaderBucketItem' }
+    TeamleaderBucketItem:
+      type: object
+      properties:
+        bucket_name: { type: string }
+        display_name: { type: string }
     TeamleaderTechniciansResponse:
       type: object
       properties:
