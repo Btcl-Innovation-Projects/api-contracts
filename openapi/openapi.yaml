@@ -2026,15 +2026,24 @@ components:
     AdminUserSummary:
       type: object
       properties:
+        id: { type: integer }
         username: { type: string }
         first_name: { type: string }
         last_name: { type: string }
+        email: { type: string }
+        is_active: { type: boolean }
         groups:
           type: array
           items: { type: string }
+        contact: { type: string, nullable: true }
+        contact2: { type: string, nullable: true }
+        cone_username: { type: string, nullable: true }
         company_id: { type: integer, nullable: true }
         company_name: { type: string, nullable: true }
+        bucket_id: { type: string, nullable: true }
+        bucket_name: { type: string, nullable: true }
         supervisor_username: { type: string, nullable: true }
+        supervisor_full_name: { type: string, nullable: true }
     AdminUsersList:
       type: object
       properties:

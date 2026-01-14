@@ -15,6 +15,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/groups/{group}` - list users in group
 - GET `/users/` - list users (admin only)
   - filters: `q`, `group`, `company_id`, `supervisor`, `page`, `page_size`
+  - fields: `id`, `username`, `first_name`, `last_name`, `email`, `is_active`, `groups[]`, `contact`, `contact2`, `cone_username`, `company_id`, `company_name`, `bucket_id`, `bucket_name`, `supervisor_username`, `supervisor_full_name`
 - GET `/users/{username}/` - user detail (admin only)
 - GET `/companies/` - list companies
 - POST `/companies/` - create company
