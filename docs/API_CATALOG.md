@@ -30,7 +30,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
   - used by assignment UI when supervisor has multiple buckets
 - GET `/teamleaders/buckets/` - list buckets for a teamleader (admin only)
   - requires `supervisor`
-- POST `/teamleaders/technicians/assign/` - assign technician
+- POST `/teamleaders/technicians/assign/` - assign technician (`technician_username` required; legacy `technician` still accepted)
 - `bucket_name` optional; if omitted and supervisor has exactly one bucket it is auto-assigned, if >1 buckets then 400 `bucket_name` required
 - POST `/teamleaders/technicians/unassign/` - unassign technician
 - GET `/teamleaders/reports/technicians/` - technician performance report

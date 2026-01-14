@@ -1881,9 +1881,10 @@ components:
     AssignTechnicianRequest:
       type: object
       properties:
-        technician: { type: string }
-        supervisor: { type: string }
+        technician_username: { type: string }
+        supervisor: { type: string, description: "Required for admin requests." }
         bucket_name: { type: string }
+      required: [technician_username]
     UnassignTechnicianRequest:
       type: object
       properties:
