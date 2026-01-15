@@ -47,7 +47,8 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/leadops/reports/teamleaders/list/` - LeadOps teamleaders list summary (combined by default)
   - filters: `date_from`, `date_to`, `granularity`, `scope=combined|internal|external`, `page`, `page_size`, `ordering`
 - GET `/leadops/reports/technicians/lowest/` - LeadOps lowest performing technician (combined by default)
-  - filters: `date_from`, `date_to`, `scope=combined|internal|external`, `supervisor`
+  - filters: `date_from`, `date_to`, `scope=combined|internal|external`, `supervisor` (optional; defaults to current user or their supervisor)
+  - returns HTTP 200 with a safe empty payload when no technicians match
 
 Reports summary additions:
 - `rating_trends`: monthly team/technician rating trend for last 12 months (only months with data)

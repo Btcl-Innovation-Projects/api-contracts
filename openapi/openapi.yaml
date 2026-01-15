@@ -188,6 +188,16 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/AdminUsersList' }
         '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/accounts/me/:
+    get:
+      summary: Get current user role info
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CurrentUserResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /v2/accounts/users/{username}/:
     get:
       summary: Get user detail (admin only)
@@ -1800,6 +1810,15 @@ components:
         success: { type: boolean }
         message: { type: string }
         error: { type: string }
+        reason: { type: string }
+        actor: { $ref: '#/components/schemas/Actor' }
+        details:
+          type: object
+          additionalProperties: true
+      example:
+        success: false
+        message: invalid_bucket_id
+        reason: invalid_bucket_id
     SuccessMessage:
       type: object
       properties:
@@ -2462,9 +2481,10 @@ components:
       type: object
       properties:
         success: { type: boolean }
-        technician_username: { type: string }
-        technician_full_name: { type: string }
-        avg_rating: { type: number }
+        message: { type: string }
+        technician_username: { type: string, nullable: true }
+        technician_full_name: { type: string, nullable: true }
+        avg_rating: { type: number, nullable: true }
         rating_count: { type: integer }
         last_3_comments_snippets:
           type: array
@@ -2770,6 +2790,24 @@ components:
         success: { type: boolean }
         message: { type: string }
         user: { $ref: '#/components/schemas/TechnicianSummary' }
+    Actor:
+      type: object
+      properties:
+        username: { type: string }
+        groups:
+          type: array
+          items: { type: string }
+        is_staff: { type: boolean }
+        is_superuser: { type: boolean }
+    CurrentUserResponse:
+      type: object
+      properties:
+        username: { type: string }
+        groups:
+          type: array
+          items: { type: string }
+        is_staff: { type: boolean }
+        is_superuser: { type: boolean }
     GenericList:
       type: array
       items:
