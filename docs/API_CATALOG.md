@@ -42,6 +42,7 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
 - GET `/teamleaders/reports/external/technicians/lowest/` - external teamleader lowest technician summary
 - GET `/leadops/reports/teamleaders/` - LeadOps teamleader technicians report
 - GET `/leadops/reports/teamleaders/summary/` - LeadOps teamleader technicians summary + trends
+- GET `/leadops/reports/technicians/summary/` - LeadOps technician drilldown summary (requires `supervisor`, `technician`)
 - GET `/leadops/reports/overall/summary/` - LeadOps overall technicians summary + trends
   - `leadops/reports/teamleaders/*` returns all teamleaders by default; `supervisor` is optional filter
 - GET `/leadops/reports/teamleaders/list/` - LeadOps teamleaders list summary (combined by default)
