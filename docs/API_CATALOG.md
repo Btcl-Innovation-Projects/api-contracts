@@ -49,6 +49,8 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
   - filters: `date_from`, `date_to`, `granularity`, `scope=combined|internal|external`, `page`, `page_size`, `ordering`
 - GET `/leadops/reports/technicians/lowest/` - LeadOps technicians ranking (lowest to highest, paginated)
   - filters: `date_from`, `date_to`, `scope=combined|internal|external`, `supervisor` (optional; defaults to current user or their supervisor)
+  - includes `supervisor_username` (and optional `supervisor_full_name`, `company_name`) per technician for drilldown
+  - technicians without a supervisor are excluded from drilldown-capable results
   - returns HTTP 200 with a safe empty payload when no technicians match
   - `debug=true` (staff only) adds `debug_breakdown` to report/summary/list responses
 

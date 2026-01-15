@@ -2485,6 +2485,9 @@ components:
       properties:
         technician_username: { type: string }
         technician_full_name: { type: string }
+        supervisor_username: { type: string, nullable: true }
+        supervisor_full_name: { type: string, nullable: true }
+        company_name: { type: string, nullable: true }
         avg_rating: { type: number }
         rating_count: { type: integer }
         last_3_comments_snippets:
