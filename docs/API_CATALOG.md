@@ -46,9 +46,10 @@ Public proxy (customer SMS web): `https://ztouch-proxy.btc.bw` (no `/v1` or `/v2
   - `leadops/reports/teamleaders/*` returns all teamleaders by default; `supervisor` is optional filter
 - GET `/leadops/reports/teamleaders/list/` - LeadOps teamleaders list summary (combined by default)
   - filters: `date_from`, `date_to`, `granularity`, `scope=combined|internal|external`, `page`, `page_size`, `ordering`
-- GET `/leadops/reports/technicians/lowest/` - LeadOps lowest performing technician (combined by default)
+- GET `/leadops/reports/technicians/lowest/` - LeadOps technicians ranking (lowest to highest, paginated)
   - filters: `date_from`, `date_to`, `scope=combined|internal|external`, `supervisor` (optional; defaults to current user or their supervisor)
   - returns HTTP 200 with a safe empty payload when no technicians match
+  - `debug=true` (staff only) adds `debug_breakdown` to report/summary/list responses
 
 Reports summary additions:
 - `rating_trends`: monthly team/technician rating trend for last 12 months (only months with data)
@@ -60,7 +61,7 @@ Reports summary additions:
   - `pending_confirmed`: open tasks with appointment_confirmed=true
   - `created_today`: tasks with date_assigned=today
   - `completed_today`: tasks with date_completed=today
-  - `closed_today`: same as completed_today (task completion)
+  - `technicians_count`: number of technicians in the report scope
 All counts use DB Task + Appointment only (no Redis).
 - PATCH `/users/{username}/` - update technician profile fields (teamleader/admin)
   - optional `groups: []` to set multiple groups (admin only); `group` remains for single-group updates

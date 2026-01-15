@@ -485,7 +485,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
   /v2/accounts/leadops/reports/technicians/lowest/:
     get:
-      summary: LeadOps lowest performing technician
+      summary: LeadOps technicians ranking (lowest to highest)
       parameters:
         - name: date_from
           in: query
@@ -500,7 +500,7 @@ paths:
           in: query
           schema: { type: string }
       responses:
-        '200': { $ref: '#/components/responses/LeadOpsLowestTechnicianResponse' }
+        '200': { $ref: '#/components/responses/LeadOpsTechniciansRankingResponse' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
   /v2/accounts/users/{username}/:
@@ -1712,11 +1712,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/LeadOpsTeamleadersListResponse' }
-    LeadOpsLowestTechnicianResponse:
-      description: LeadOps lowest technician response
+    LeadOpsTechniciansRankingResponse:
+      description: LeadOps technicians ranking response
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/LeadOpsLowestTechnicianResponse' }
+          schema: { $ref: '#/components/schemas/LeadOpsTechniciansRankingResponse' }
     LowestTechnicianResponse:
       description: Lowest technician response
       content:
@@ -2378,6 +2378,7 @@ components:
               date_assigned: { type: string }
               date_completed: { type: string }
               tat_hours: { type: number }
+        debug_breakdown: { $ref: '#/components/schemas/DebugBreakdown' }
     ReportSummaryResponse:
       type: object
       properties:
@@ -2430,7 +2431,8 @@ components:
             pending_confirmed: { type: integer }
             completed_today: { type: integer }
             created_today: { type: integer }
-            closed_today: { type: integer }
+            technicians_count: { type: integer }
+        debug_breakdown: { $ref: '#/components/schemas/DebugBreakdown' }
     LowestTechnicianResponse:
       type: object
       properties:
@@ -2476,15 +2478,33 @@ components:
         no_date_count: { type: integer }
         completed_today: { type: integer }
         created_today: { type: integer }
-        closed_today: { type: integer }
-    LeadOpsLowestTechnicianResponse:
+        technicians_count: { type: integer }
+        debug_breakdown: { $ref: '#/components/schemas/DebugBreakdown' }
+    LeadOpsTechniciansRankingResponse:
       type: object
       properties:
         success: { type: boolean }
-        message: { type: string }
-        technician_username: { type: string, nullable: true }
-        technician_full_name: { type: string, nullable: true }
-        avg_rating: { type: number, nullable: true }
+        message: { type: string, nullable: true }
+        filters:
+          type: object
+          properties:
+            supervisor: { type: string }
+            scope: { type: string }
+            date_from: { type: string }
+            date_to: { type: string }
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/LeadOpsTechnicianRankingItem' }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+    LeadOpsTechnicianRankingItem:
+      type: object
+      properties:
+        technician_username: { type: string }
+        technician_full_name: { type: string }
+        avg_rating: { type: number }
         rating_count: { type: integer }
         last_3_comments_snippets:
           type: array
@@ -2808,6 +2828,9 @@ components:
           items: { type: string }
         is_staff: { type: boolean }
         is_superuser: { type: boolean }
+    DebugBreakdown:
+      type: object
+      additionalProperties: true
     GenericList:
       type: array
       items:
