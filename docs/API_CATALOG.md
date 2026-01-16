@@ -91,6 +91,7 @@ Notes:
 - PATCH `/cases/tasks/{pk}/assign/` - assign task to user
 - GET `/cases/tasks/completed/` - list completed tasks
 - POST `/cases/tasks/refresh/` - refresh user task cases
+- GET `/cache/status/` - cache refresh status for user/bucket
 - POST `/cases/tasks/test-upload/` - admin test upload of cases to a user
 - GET `/buckets/` - list buckets for user
 - POST `/buckets/` - create bucket

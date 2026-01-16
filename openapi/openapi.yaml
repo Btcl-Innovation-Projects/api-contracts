@@ -743,6 +743,23 @@ paths:
       summary: Refresh user task cases
       responses:
         '200': { $ref: '#/components/responses/SuccessMessage' }
+  /v2/cone/cache/status/:
+    get:
+      summary: Get cache refresh status for user/bucket
+      parameters:
+        - name: username
+          in: query
+          required: false
+          schema: { type: string }
+        - name: bucket
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/CacheStatusResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /v2/cone/cases/tasks/test-upload/:
     post:
       summary: Upload test cases to user (admin only)
@@ -1756,6 +1773,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/TasksResponse' }
+    CacheStatusResponse:
+      description: Cache status response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/CacheStatusResponse' }
     WorkloadResponse:
       description: Workload response
       content:
@@ -1976,12 +1998,13 @@ components:
       type: object
       properties:
         name: { type: string }
+        group_queue_id: { type: string }
       required: [name]
     BucketUpdateRequest:
       type: object
       properties:
         name: { type: string }
-      required: [name]
+        group_queue_id: { type: string }
     BucketRefreshRequest:
       type: object
       properties:
@@ -2324,6 +2347,7 @@ components:
       properties:
         id: { type: string }
         name: { type: string }
+        group_queue_id: { type: string, nullable: true }
         owner: { type: string }
     UploadCasesResponse:
       type: object
@@ -2580,6 +2604,34 @@ components:
         page_size: { type: integer }
         total: { type: integer }
         total_pages: { type: integer }
+    CacheStatusItem:
+      type: object
+      properties:
+        last_refreshed_at: { type: string, format: date-time, nullable: true }
+        count: { type: integer }
+        source: { type: string }
+    CacheStatusResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        user:
+          type: object
+          properties:
+            username: { type: string }
+            cache:
+              allOf:
+                - $ref: '#/components/schemas/CacheStatusItem'
+              nullable: true
+        buckets:
+          type: array
+          items:
+            type: object
+            properties:
+              bucket: { type: string }
+              cache:
+                allOf:
+                  - $ref: '#/components/schemas/CacheStatusItem'
+                nullable: true
     AppointmentTokenResponse:
       type: object
       properties:
