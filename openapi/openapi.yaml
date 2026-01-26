@@ -1738,7 +1738,7 @@ paths:
           in: query
           schema: { type: string }
       responses:
-        '200': { $ref: '#/components/responses/GenericList' }
+        '200': { $ref: '#/components/responses/StarSubscribersSearchResponse' }
   /v2/star/vlans/reserve/:
     post:
       summary: Reserve VLAN (20-minute TTL)
@@ -1945,6 +1945,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/VlanReservedResponse' }
+    StarSubscribersSearchResponse:
+      description: Subscriber search response with reserved VLANs
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StarSubscribersSearchResponse' }
     UploadCasesConflict:
       description: Upload cases conflict
       content:
@@ -2423,6 +2428,35 @@ components:
         vlans:
           type: array
           items: { type: string }
+    StarSubscribersSearchResponse:
+      type: object
+      properties:
+        query: { type: string }
+        matched_nodes: { type: integer }
+        row_cap_hit: { type: boolean }
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              node_id: { type: string }
+              used_vlans:
+                type: array
+                items: { type: integer }
+              skipped_vlans:
+                type: array
+                items: { type: integer }
+              next_vlan: { type: integer }
+              count_used: { type: integer }
+              reserved_vlans:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    reserved_by: { type: string }
+                    case_number: { type: string }
+                    reserved_at: { type: string }
+                    ttl_seconds: { type: integer }
 
     User:
       type: object

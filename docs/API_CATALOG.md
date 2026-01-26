@@ -206,6 +206,7 @@ Report examples:
 - POST `/olt/vlans/unused/delete/` - delete unused VLANs
 - POST `/service/provisioning/{metro}/{node}/{type}` - provision VLANs on metro/node
 - GET `/subscribers/search` - search VLANs
+  - results include `reserved_vlans` per node (map of vlan -> {reserved_by, case_number, reserved_at, ttl_seconds})
 - GET `/subscribers/lookup` - subscriber lookup
 - GET `/subscribers/health` - subscriber health
 - POST `/vlans/reserve/` - reserve VLAN (20-minute TTL)
