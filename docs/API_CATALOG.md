@@ -81,10 +81,12 @@ Notes:
 - POST `/cases/tasks/{pk}/signoff/` - signoff task
 - GET `/cases/` - list cases
 - GET `/cases/tasks/` - list user task cases (Redis)
+  - includes `reserved_vlans[]` per case when VLANs are reserved
 - POST `/cases/assign/` - assign cases to user
 - GET `/cases/workload/` - workload summary per technician (teamleader/admin)
 - PATCH `/cases/{case_number}/update/` - update case fields
-- POST `/cases/upload/` - upload locality cases
+- POST `/cases/upload/` - upload locality cases (sales/admin/teamleader/technician)
+  - body: `locality` (canonical key), `cases[]`, optional `force=true` to override existing locality when case is not provisioned/closed
 - GET `/offers/{pk}/get` - get offer info
 - GET `/cases/customer/name/` - get customer name
 - GET `/cases/token/` - get access token (no auth)
@@ -176,7 +178,17 @@ Report examples:
 - GET `/copper-theft/prices/` - list prices
 - GET/PATCH `/copper-theft/prices/{pk}/` - price detail
 - POST `/subscriber/upload/` - upload subscriber data
-- GET `/localities/` - list localities
+- GET `/localities/` - list localities (authenticated)
+  - filters: `vendor`, `technology`, `q` (case-insensitive partial match)
+- POST `/localities/` - create locality (teamleader/admin/manager)
+- GET `/localities/{id}/` - locality detail
+- PATCH `/localities/{id}/` - update locality (teamleader/admin/manager)
+- DELETE `/localities/{id}/` - delete locality (teamleader/admin/manager)
+- GET `/nodes/` - list nodes (teamleader/admin/manager)
+- POST `/nodes/` - create node (admin/manager)
+- GET `/nodes/{id}/` - node detail (teamleader/admin/manager)
+- PATCH `/nodes/{id}/` - update node (admin/manager)
+- DELETE `/nodes/{id}/` - delete node (admin/manager)
 - GET `/regions-with-locations/` - regions with locations
 - POST `/locations/report-technician-location/` - report technician location
 - GET `/locations/technician-locations/latest/` - latest technician locations
@@ -196,6 +208,9 @@ Report examples:
 - GET `/subscribers/search` - search VLANs
 - GET `/subscribers/lookup` - subscriber lookup
 - GET `/subscribers/health` - subscriber health
+- POST `/vlans/reserve/` - reserve VLAN (20-minute TTL)
+- POST `/vlans/release/` - release VLAN reservation
+- GET `/vlans/reserved` - list reserved VLANs by `case_number` or `username`
 
 ## Pagination & Filtering
 - Pagination parameters: `page`, `page_size` on `/v2/accounts/groups/{group}`, `/v2/accounts/teamleaders/technicians/`, `/v2/cone/cases/`, `/v2/cone/cases/tasks/`, `/v2/servicequality/cases/appointments/`, `/v2/servicequality/cases/ratings/`

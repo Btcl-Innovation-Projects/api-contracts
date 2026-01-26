@@ -689,6 +689,7 @@ paths:
   /v2/cone/cases/upload/:
     post:
       summary: Upload locality cases
+      description: Sales/admin/teamleader/technician. Locality is a canonical key; duplicate keys across companies return 400. Use force=true to override existing locality for eligible cases; 409 when override is not allowed.
       requestBody:
         required: true
         content:
@@ -696,6 +697,9 @@ paths:
             schema: { $ref: '#/components/schemas/UploadCasesRequest' }
       responses:
         '200': { $ref: '#/components/responses/UploadCasesResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/UploadCasesConflict' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /v2/cone/offers/{pk}/get:
     get:
       summary: Get offer info
@@ -1453,8 +1457,146 @@ paths:
   /v2/networkaudit/localities/:
     get:
       summary: Get localities
+      description: Authenticated users can read. Supports case-insensitive partial matching for vendor/technology and q.
+      parameters:
+        - name: vendor
+          in: query
+          schema: { type: string }
+          description: Case-insensitive partial match on node vendor.
+        - name: technology
+          in: query
+          schema: { type: string }
+          description: Case-insensitive partial match on node technology.
+        - name: q
+          in: query
+          schema: { type: string }
+          description: Case-insensitive partial match on locality name, key, or location.
       responses:
-        '200': { $ref: '#/components/responses/GenericList' }
+        '200': { $ref: '#/components/responses/LocalitiesResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create locality
+      description: Admin/Manager/Teamleader can create localities.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LocalityCreateRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/LocalityResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/networkaudit/localities/{id}/:
+    get:
+      summary: Get locality
+      description: Authenticated users can read localities.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/LocalityResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      summary: Update locality
+      description: Admin/Manager/Teamleader can update localities. Locality key is immutable.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LocalityUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/LocalityResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      summary: Delete locality
+      description: Admin/Manager/Teamleader can delete localities if not referenced.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v2/networkaudit/nodes/:
+    get:
+      summary: Get nodes
+      description: Admin/Manager/Teamleader can list nodes. q is case-insensitive partial match on name/ip/city and exact id when numeric.
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/NodesResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create node
+      description: Admin/Manager can create nodes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NodeCreateRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/NodeResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /v2/networkaudit/nodes/{id}/:
+    get:
+      summary: Get node
+      description: Admin/Manager/Teamleader can retrieve nodes.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/NodeResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      summary: Update node
+      description: Admin/Manager can update nodes.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NodeUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/NodeResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      summary: Delete node
+      description: Admin/Manager can delete nodes if not referenced.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /v2/networkaudit/regions-with-locations/:
     get:
       summary: Regions with locations
@@ -1592,11 +1734,51 @@ paths:
     get:
       summary: Search nodes and VLANs
       parameters:
-        - name: query
+        - name: q
           in: query
           schema: { type: string }
       responses:
         '200': { $ref: '#/components/responses/GenericList' }
+  /v2/star/vlans/reserve/:
+    post:
+      summary: Reserve VLAN (20-minute TTL)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VlanReserveRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/VlanReserveResponse' }
+        '409': { $ref: '#/components/responses/VlanReserveConflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/star/vlans/release/:
+    post:
+      summary: Release VLAN reservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VlanReleaseRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/VlanReleaseResponse' }
+        '409': { $ref: '#/components/responses/VlanReleaseConflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v2/star/vlans/reserved:
+    get:
+      summary: List reserved VLANs by case or user
+      parameters:
+        - name: case_number
+          in: query
+          schema: { type: string }
+        - name: username
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/VlanReservedResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /v2/star/subscribers/lookup:
     get:
       summary: Subscriber lookup
@@ -1738,6 +1920,36 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/UploadCasesResponse' }
+    VlanReserveResponse:
+      description: VLAN reserved
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanReserveResponse' }
+    VlanReserveConflict:
+      description: VLAN already reserved
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanReserveResponse' }
+    VlanReleaseResponse:
+      description: VLAN released
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanReleaseResponse' }
+    VlanReleaseConflict:
+      description: VLAN release conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanReleaseResponse' }
+    VlanReservedResponse:
+      description: Reserved VLANs list
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanReservedResponse' }
+    UploadCasesConflict:
+      description: Upload cases conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/UploadCasesConflictResponse' }
     TeamleaderTechniciansResponse:
       description: Teamleader technicians response
       content:
@@ -1853,6 +2065,26 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/GenericItem' }
+    LocalitiesResponse:
+      description: Localities response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/LocalitiesResponse' }
+    LocalityResponse:
+      description: Locality response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/LocalityResponse' }
+    NodesResponse:
+      description: Nodes response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/NodesResponse' }
+    NodeResponse:
+      description: Node response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/NodeResponse' }
 
   schemas:
     ErrorResponse:
@@ -1990,7 +2222,16 @@ components:
       type: object
       properties:
         cases: { type: array, items: { type: string } }
-        locality: { type: string }
+        locality:
+          type: string
+          description: Canonical locality key used to resolve provisioning context; duplicate keys across companies return 400.
+        force:
+          type: boolean
+          description: When true, overrides existing locality if the case is not provisioned/closed.
+      example:
+        locality: gabs_east_3
+        force: true
+        cases: ["1805745", "1809807"]
     CompleteTaskRequest:
       type: object
       additionalProperties: true
@@ -2143,6 +2384,45 @@ components:
     DeleteVlansRequest:
       type: object
       additionalProperties: true
+    VlanReserveRequest:
+      type: object
+      properties:
+        vlan: { type: integer }
+        case_number: { type: string }
+      required: [vlan, case_number]
+    VlanReleaseRequest:
+      type: object
+      properties:
+        vlan: { type: integer }
+        case_number: { type: string }
+      required: [vlan, case_number]
+    VlanReservation:
+      type: object
+      properties:
+        reserved_by: { type: string }
+        case_number: { type: string }
+        reserved_at: { type: string }
+    VlanReserveResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        reservation: { $ref: '#/components/schemas/VlanReservation' }
+    VlanReleaseResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        reservation: { $ref: '#/components/schemas/VlanReservation' }
+    VlanReservedResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        case_number: { type: string }
+        username: { type: string }
+        vlans:
+          type: array
+          items: { type: string }
 
     User:
       type: object
@@ -2271,6 +2551,9 @@ components:
         tasks:
           type: array
           items: { $ref: '#/components/schemas/CaseTask' }
+        reserved_vlans:
+          type: array
+          items: { type: string }
     CaseTask:
       type: object
       properties:
@@ -2351,7 +2634,55 @@ components:
         owner: { type: string }
     UploadCasesResponse:
       type: object
-      additionalProperties: true
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        cases:
+          type: object
+          properties:
+            uploaded:
+              type: array
+              items:
+                type: object
+                properties:
+                  number: { type: string }
+                  message: { type: string }
+                  vlan: { type: string, nullable: true }
+            not_uploaded:
+              type: array
+              items:
+                type: object
+                properties:
+                  number: { type: string }
+                  message: { type: string }
+                  vlan: { type: string, nullable: true }
+        error: { type: string, nullable: true }
+        vlan_scripts:
+          type: object
+          additionalProperties: true
+      example:
+        success: true
+        message: Successfully uploaded 1 case
+        cases:
+          uploaded:
+            - number: "1805745"
+              message: uploaded
+              vlan: "NA"
+          not_uploaded: []
+        error: null
+        vlan_scripts: {}
+    UploadCasesConflictResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        cases:
+          type: array
+          items: { type: string }
+      example:
+        success: false
+        message: Locality already set for case(s). Use force=true to override.
+        cases: ["1805745", "1809807"]
     ReportResponse:
       type: object
       properties:
@@ -2930,6 +3261,144 @@ components:
           items: { type: string }
         is_staff: { type: boolean }
         is_superuser: { type: boolean }
+    LocalityListItem:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        key: { type: string }
+        company: { type: string }
+        location: { type: string }
+        city: { type: string }
+        node_id: { type: integer }
+        vendor: { type: string }
+        technology: { type: string }
+        node__vendor: { type: string }
+        node__technology: { type: string }
+    LocalitiesResponse:
+      type: object
+      properties:
+        message: { type: string }
+        localities:
+          type: array
+          items: { $ref: '#/components/schemas/LocalityListItem' }
+      example:
+        message: Successfully retrieved localities
+        localities:
+          - id: 12
+            key: gabs_east_3
+            name: "Gabs East 3"
+            company: BTC
+            location: "Plot 1, Gaborone"
+            city: Gaborone
+            node_id: 66
+            vendor: Huawei
+            technology: FTTx
+            node__vendor: Huawei
+            node__technology: FTTx
+    Node:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        bras_location: { type: string }
+        bras_interface: { type: string }
+        location: { type: string }
+        latitude: { type: string }
+        longitude: { type: string }
+        city: { type: string }
+        ip_address: { type: string }
+        vendor: { type: string }
+        technology: { type: string }
+        device_type: { type: string }
+        company: { type: string }
+    NodesResponse:
+      type: object
+      properties:
+        message: { type: string }
+        nodes:
+          type: array
+          items: { $ref: '#/components/schemas/Node' }
+    NodeResponse:
+      type: object
+      properties:
+        message: { type: string }
+        node: { $ref: '#/components/schemas/Node' }
+    Locality:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        key: { type: string }
+        company: { type: string }
+        location: { type: string }
+        node: { $ref: '#/components/schemas/Node' }
+    LocalityResponse:
+      type: object
+      properties:
+        message: { type: string }
+        locality: { $ref: '#/components/schemas/Locality' }
+    NodeCreateRequest:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        bras_location: { type: string }
+        bras_interface: { type: string }
+        location: { type: string }
+        latitude: { type: string }
+        longitude: { type: string }
+        city: { type: string }
+        ip_address: { type: string }
+        vendor: { type: string }
+        technology: { type: string }
+        device_type: { type: string }
+        company: { type: string }
+      required:
+        - id
+        - name
+        - bras_location
+        - bras_interface
+        - location
+        - latitude
+        - longitude
+        - city
+        - ip_address
+        - vendor
+        - technology
+        - device_type
+        - company
+    NodeUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        bras_location: { type: string }
+        bras_interface: { type: string }
+        location: { type: string }
+        latitude: { type: string }
+        longitude: { type: string }
+        city: { type: string }
+        ip_address: { type: string }
+        vendor: { type: string }
+        technology: { type: string }
+        device_type: { type: string }
+        company: { type: string }
+    LocalityCreateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        key: { type: string }
+        company: { type: string }
+        location: { type: string }
+        node_id: { type: integer }
+      required: [name, key, company, location, node_id]
+    LocalityUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        company: { type: string }
+        location: { type: string }
+        node_id: { type: integer }
     DebugBreakdown:
       type: object
       additionalProperties: true
