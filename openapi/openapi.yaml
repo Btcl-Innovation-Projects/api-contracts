@@ -2393,19 +2393,22 @@ components:
       type: object
       properties:
         vlan: { type: integer }
+        node_id: { type: string }
         case_number: { type: string }
-      required: [vlan, case_number]
+      required: [vlan, node_id, case_number]
     VlanReleaseRequest:
       type: object
       properties:
         vlan: { type: integer }
+        node_id: { type: string }
         case_number: { type: string }
-      required: [vlan, case_number]
+      required: [vlan, node_id, case_number]
     VlanReservation:
       type: object
       properties:
         reserved_by: { type: string }
         case_number: { type: string }
+        node_id: { type: string }
         reserved_at: { type: string }
     VlanReserveResponse:
       type: object

@@ -209,8 +209,8 @@ Report examples:
   - results include `reserved_vlans` per node (map of vlan -> {reserved_by, case_number, reserved_at, ttl_seconds})
 - GET `/subscribers/lookup` - subscriber lookup
 - GET `/subscribers/health` - subscriber health
-- POST `/vlans/reserve/` - reserve VLAN (20-minute TTL)
-- POST `/vlans/release/` - release VLAN reservation
+- POST `/vlans/reserve/` - reserve VLAN (20-minute TTL) (`vlan`, `node_id`, `case_number`)
+- POST `/vlans/release/` - release VLAN reservation (`vlan`, `node_id`, `case_number`)
 - GET `/vlans/reserved` - list reserved VLANs by `case_number` or `username`
 
 ## Pagination & Filtering
