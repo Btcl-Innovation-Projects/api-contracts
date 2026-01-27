@@ -78,6 +78,8 @@ Notes:
 - POST `/cases/tasks/{pk}/complete/` - complete task
 - POST `/cases/tasks/{pk}/v2/complete/` - complete task v2
 - POST `/cases/tasks/{pk}/v3/complete/` - complete task v3 (appointment required)
+  - optional `knowledge_capture` object to store fault work summary, evidence metadata, and GPS/time
+- POST `/cases/tasks/{pk}/knowledge-capture/media/` - upload knowledge capture media (multipart)
 - POST `/cases/tasks/{pk}/signoff/` - signoff task
 - GET `/cases/` - list cases
 - GET `/cases/tasks/` - list user task cases (Redis)

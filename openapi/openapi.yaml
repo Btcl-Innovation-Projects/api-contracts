@@ -2240,6 +2240,54 @@ components:
     CompleteTaskRequest:
       type: object
       additionalProperties: true
+      properties:
+        knowledge_capture:
+          $ref: '#/components/schemas/KnowledgeCaptureRequest'
+    KnowledgeCaptureRequest:
+      type: object
+      properties:
+        fault_work_done: { type: string }
+        evidence_images:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  media_id: { type: integer }
+                required: [media_id]
+              - type: object
+                properties:
+                  external_uri: { type: string }
+                  external_uri_only: { type: boolean }
+              - type: string
+        latitude: { type: number }
+        longitude: { type: number }
+        captured_at:
+          type: string
+          format: date-time
+      additionalProperties: true
+    KnowledgeCaptureMediaUploadRequest:
+      type: object
+      properties:
+        file: { type: string, format: binary }
+        slot: { type: integer }
+        label: { type: string }
+        captured_at: { type: string, format: date-time }
+        timezone: { type: string }
+        gps_lat: { type: number }
+        gps_lon: { type: number }
+        location_status: { type: string }
+        location_missing_reason: { type: string }
+      required: [file]
+    KnowledgeCaptureMediaUploadResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        media_id: { type: integer }
+        file_url: { type: string, nullable: true }
+        task_instance_id: { type: string }
+        case_number: { type: string }
     BucketCreateRequest:
       type: object
       properties:
@@ -3447,3 +3495,21 @@ components:
     GenericItem:
       type: object
       additionalProperties: true
+  /v2/cone/cases/tasks/{pk}/knowledge-capture/media/:
+    post:
+      summary: Upload knowledge capture media
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KnowledgeCaptureMediaUploadRequest'
+      responses:
+        '200':
+          description: Media uploaded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/KnowledgeCaptureMediaUploadResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
