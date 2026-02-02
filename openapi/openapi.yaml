@@ -586,7 +586,9 @@ paths:
             schema: { $ref: '#/components/schemas/CompleteTaskRequest' }
       responses:
         '200': { $ref: '#/components/responses/SuccessMessage' }
-        '400': { $ref: '#/components/responses/BadRequest' }
+        '400': { $ref: '#/components/responses/ValidationErrorResponse' }
+        '409': { $ref: '#/components/responses/VlanProvisionConflict' }
+        '422': { $ref: '#/components/responses/VlanProvisionValidationError' }
   /v2/cone/cases/tasks/{pk}/v2/complete/:
     post:
       summary: Complete task v2
@@ -1945,6 +1947,28 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/VlanReservedResponse' }
+    VlanProvisionConflict:
+      description: VLAN provisioning conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanProvisioningErrorResponse' }
+    VlanProvisionValidationError:
+      description: VLAN provisioning validation error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VlanProvisioningErrorResponse' }
+    ValidationErrorResponse:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: { type: boolean }
+              message: { type: string }
+              errors:
+                type: object
+                additionalProperties: true
     StarSubscribersSearchResponse:
       description: Subscriber search response with reserved VLANs
       content:
@@ -2241,8 +2265,45 @@ components:
       type: object
       additionalProperties: true
       properties:
+        task_instance_id: { type: string }
+        reference_code: { type: string }
+        when_created: { type: string }
+        user_updated: { type: string }
+        task_complete_code_string: { type: string }
+        case:
+          type: object
+          properties:
+            case_number: { type: string }
+            case_id: { type: string }
+            customer_id: { type: string }
+            description: { type: string }
         knowledge_capture:
           $ref: '#/components/schemas/KnowledgeCaptureRequest'
+        service:
+          type: object
+          description: Provisioning payload. VLAN for Radio or FTTx Huawei must be provided via `service.misc.vlan` (integer). If present, `service.service_vlan` may be a prefixed string (e.g., H-123/R-123) indicating assigned VLAN.
+          properties:
+            service_vlan:
+              type: string
+            vlan:
+              type: integer
+            reserved_vlan:
+              type: integer
+            misc:
+              type: object
+              properties:
+                vlan:
+                  type: integer
+                reserved_vlan:
+                  type: integer
+      required:
+        - task_instance_id
+        - reference_code
+        - when_created
+        - user_updated
+        - task_complete_code_string
+        - case
+        - service
     KnowledgeCaptureRequest:
       type: object
       properties:
@@ -3495,6 +3556,18 @@ components:
     GenericItem:
       type: object
       additionalProperties: true
+
+    VlanProvisioningErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        case_number: { type: string }
+        node_id: { type: integer }
+        vlan: { type: string, nullable: true }
+        reason:
+          type: string
+          enum: [VLAN_REQUIRED, NOT_RESERVED_FOR_CASE, RESERVED_BY_OTHER, NOT_AVAILABLE, NODE_NOT_FOUND]
   /v2/cone/cases/tasks/{pk}/knowledge-capture/media/:
     post:
       summary: Upload knowledge capture media
