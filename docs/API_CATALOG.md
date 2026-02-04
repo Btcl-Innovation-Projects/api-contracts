@@ -170,6 +170,60 @@ Report examples:
 ## Network Audit (`/v2/networkaudit`)
 - GET `/copper-theft/reports/` - copper theft reports
 - GET `/v2/star/reports/customers-summary` - customers summary by city/locality/node (includes profile speeds + suspended)
+  Example response:
+  ```json
+  {
+    "report": "customers_summary",
+    "total_rows_scanned": 20533,
+    "matched_rows": 20181,
+    "node_ids_used": 590,
+    "cities": [
+      {
+        "city": "Mogoditshane",
+        "customers": 1085,
+        "speeds": [
+          { "FTOWN_100M": 23 },
+          { "FTOWN_10M": 54 }
+        ],
+        "suspended": [
+          { "FTOWN_100M": 3 },
+          { "FTOWN_10M": 2 }
+        ],
+        "nodes_used": 6,
+        "node_ids": [67, 318, 535, 657, 1810, 2908]
+      }
+    ],
+    "localities": [
+      {
+        "locality": "Rlu 7",
+        "customers": 123,
+        "speeds": [
+          { "FTOWN_100M": 5 },
+          { "FTOWN_10M": 7 }
+        ],
+        "suspended": [
+          { "FTOWN_100M": 1 }
+        ],
+        "nodes_used": 2,
+        "node_ids": [1854, 1855]
+      }
+    ],
+    "nodes": [
+      {
+        "node_id": 1854,
+        "node_name": "OLT-RLU-7",
+        "customers": 321,
+        "speeds": [
+          { "FTOWN_100M": 12 },
+          { "FTOWN_10M": 19 }
+        ],
+        "suspended": [
+          { "FTOWN_10M": 2 }
+        ]
+      }
+    ]
+  }
+  ```
 - GET/POST `/copper-theft/incidents/` - list/create incidents
 - GET/PATCH/DELETE `/copper-theft/incidents/{pk}/` - incident detail
 - GET/POST `/copper-theft/incident/{incident_id}/affected-customers/` - affected customers
