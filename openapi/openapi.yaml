@@ -1232,6 +1232,11 @@ paths:
       summary: Get copper theft reports
       responses:
         '200': { $ref: '#/components/responses/GenericList' }
+  /v2/star/reports/customers-summary:
+    get:
+      summary: Customers summary by city/locality/node
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
   /v2/networkaudit/copper-theft/incidents/:
     get:
       summary: List incidents

@@ -169,6 +169,7 @@ Report examples:
 
 ## Network Audit (`/v2/networkaudit`)
 - GET `/copper-theft/reports/` - copper theft reports
+- GET `/v2/star/reports/customers-summary` - customers summary by city/locality/node (includes profile speeds + suspended)
 - GET/POST `/copper-theft/incidents/` - list/create incidents
 - GET/PATCH/DELETE `/copper-theft/incidents/{pk}/` - incident detail
 - GET/POST `/copper-theft/incident/{incident_id}/affected-customers/` - affected customers
