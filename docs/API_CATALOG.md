@@ -224,6 +224,9 @@ Report examples:
     ]
   }
   ```
+- POST `/v2/compliance/reports/` - upload an Excel/CSV file and receive a ZIP of XML reports
+  - multipart form field: `file`
+  - optional query params: `sheet_name`, `unique_by`, `pretty`
 - GET/POST `/copper-theft/incidents/` - list/create incidents
 - GET/PATCH/DELETE `/copper-theft/incidents/{pk}/` - incident detail
 - GET/POST `/copper-theft/incident/{incident_id}/affected-customers/` - affected customers

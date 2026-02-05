@@ -1276,6 +1276,37 @@ paths:
                       - FTOWN_10M: 19
                     suspended:
                       - FTOWN_10M: 2
+  /v2/compliance/reports/:
+    post:
+      summary: Build compliance XML reports from an uploaded spreadsheet
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      parameters:
+        - name: sheet_name
+          in: query
+          schema: { type: string }
+        - name: unique_by
+          in: query
+          schema: { type: string }
+        - name: pretty
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: ZIP file containing XML reports
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
   /v2/networkaudit/copper-theft/incidents/:
     get:
       summary: List incidents
