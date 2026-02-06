@@ -1307,6 +1307,61 @@ paths:
               schema:
                 type: string
                 format: binary
+  /v2/compliance/reports/async/:
+    post:
+      summary: Enqueue compliance report generation
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      parameters:
+        - name: sheet_name
+          in: query
+          schema: { type: string }
+        - name: unique_by
+          in: query
+          schema: { type: string }
+        - name: pretty
+          in: query
+          schema: { type: boolean }
+      responses:
+        '202':
+          description: Job accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/responses/GenericItem' }
+  /v2/compliance/reports/async/{job_id}/:
+    get:
+      summary: Get compliance report job status
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericItem' }
+  /v2/compliance/reports/async/{job_id}/download/:
+    get:
+      summary: Download completed compliance report ZIP
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: ZIP file containing XML reports
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
   /v2/networkaudit/copper-theft/incidents/:
     get:
       summary: List incidents

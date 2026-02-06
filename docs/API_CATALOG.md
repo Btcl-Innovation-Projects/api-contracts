@@ -227,6 +227,9 @@ Report examples:
 - POST `/v2/compliance/reports/` - upload an Excel/CSV file and receive a ZIP of XML reports
   - multipart form field: `file`
   - optional query params: `sheet_name`, `unique_by`, `pretty`
+- POST `/v2/compliance/reports/async/` - enqueue report generation (returns `job_id`)
+- GET `/v2/compliance/reports/async/{job_id}/` - check job status
+- GET `/v2/compliance/reports/async/{job_id}/download/` - download ZIP when ready
 - GET/POST `/copper-theft/incidents/` - list/create incidents
 - GET/PATCH/DELETE `/copper-theft/incidents/{pk}/` - incident detail
 - GET/POST `/copper-theft/incident/{incident_id}/affected-customers/` - affected customers
